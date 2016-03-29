@@ -275,13 +275,15 @@ def showHexArrays(text, encTexts):
 
 
 class Viewer:
-    def show(self, encTexts, keysCandidates):
+    def show(self, encTexts, keysCandidates, charBase):
         key = self._get_key(keysCandidates)
         for encText in encTexts:
             output = ''
             for c, k in zip(encText, key):
-                if c:
-                    output += ''
+                if k and chr(c ^ k) in charBase:
+                    output += chr(c ^ k)
+                else:
+                    output += '_'
 
         print('final: ' + output)
 
