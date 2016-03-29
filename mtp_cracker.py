@@ -139,10 +139,10 @@ class Decoder:
 
 
 class TtpDecoder:
-    def __init__(self, freqTab):
+    def __init__(self, freqTab, charBase):
         self._analyzer = TtpAnalyzer()
         self._matcher = TtpBestFreqMatcher(freqTab, 0.3)
-        self._charBase = string.letters + string.digits
+        self._charBase = charBase
 
     def decode(self, encTexts):
         ttpData = self._analyzer.count(encTexts)
