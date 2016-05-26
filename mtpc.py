@@ -1,4 +1,6 @@
-#! /usr/bin/env python2
+#! /usr/bin/env python
+# Author: Mateusz Janda (mateusz.janda@gmail.com)
+# Ad maiorem Dei gloriam
 
 import base64
 import string
