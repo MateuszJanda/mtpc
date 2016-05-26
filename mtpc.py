@@ -42,7 +42,7 @@ class LettersDistributor:
         ' ': 0.1918182,
     }
 
-    def english(self):
+    def distribution(self):
         result = {}
 
         chars = sorted(self.ENGLISH_LETTERS.keys())
@@ -53,11 +53,8 @@ class LettersDistributor:
         return result
 
     def info(self):
-        self.infoEnglish()
-
-    def infoEnglish(self):
         print('[i] English - second order letters distribution')
-        freqTab = self.english()
+        freqTab = self.distribution()
         sortedTab = sorted(freqTab.items(), key=operator.itemgetter(1), reverse=True)
         for letters, freq in sortedTab:
             print('[i] ' + str(letters) + ': ' + str(freq))
@@ -65,8 +62,8 @@ class LettersDistributor:
         freqSum = sum([freq for freq in freqTab.values()])
         print('[i] Sum \'m^m\' probabilities: ' + str(freqSum * 2))
 
-        count_freq_m = sum([f for f in self.ENGLISH_LETTERS.values()])
-        print('[i] Sum \'m\' probabilities:   ' + str(count_freq_m))
+        countFreqM = sum([f for f in self.ENGLISH_LETTERS.values()])
+        print('[i] Sum \'m\' probabilities:   ' + str(countFreqM))
         print('[i] ------')
 
 
