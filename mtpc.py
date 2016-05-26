@@ -11,6 +11,7 @@ import operator
 
 
 class LettersDistributor:
+    # http://www.data-compression.com/english.html
     ENGLISH_LETTERS = {
         'a': 0.0651738,
         'b': 0.0124248,
@@ -63,7 +64,7 @@ class LettersDistributor:
 
         freqSum = sum([freq for freq in freqTab.values()])
         print('[i] Sum \'m^m\' probabilities: ' + str(freqSum * 2))
-'
+
         count_freq_m = sum([f for f in self.ENGLISH_LETTERS.values()])
         print('[i] Sum \'m\' probabilities:   ' + str(count_freq_m))
         print('[i] ------')
