@@ -10,63 +10,44 @@ from collections import namedtuple
 import operator
 
 
-def main():
-    # encTexts = convertInputToHex()
-    encTexts = convertInputToHex2()
-    showHexArrays('Trimmed sequences:', encTexts)
-
-    ld = LettersDistribution()
-    freqTab = ld.english()
-    # ld.info()
-
-    print('')
-    d = TtpDecoder(freqTab)
-    keysCandidates = d.decode(encTexts)
-
-    # d = Decoder()
-    # d.decode(encTexts)
-
-    v = Viewer()
-    v.show(encTexts, keysCandidates)
-
-
-class LettersDistribution:
-    ENG_FREQ = {
-        'a': 8.167 / 100.0,
-        'b': 1.492 / 100.0,
-        'c': 2.782 / 100.0,
-        'd': 4.253 / 100.0,
-        'e': 12.702 / 100.0,
-        'f': 2.228 / 100.0,
-        'g': 2.015 / 100.0,
-        'h': 6.094 / 100.0,
-        'i': 6.966 / 100.0,
-        'j': 0.153 / 100.0,
-        'k': 0.772 / 100.0,
-        'l': 4.025 / 100.0,
-        'm': 2.406 / 100.0,
-        'n': 6.749 / 100.0,
-        'o': 7.507 / 100.0,
-        'p': 1.929 / 100.0,
-        'q': 0.095 / 100.0,
-        'r': 5.987 / 100.0,
-        's': 6.327 / 100.0,
-        't': 9.056 / 100.0,
-        'u': 2.758 / 100.0,
-        'v': 0.978 / 100.0,
-        'w': 2.360 / 100.0,
-        'x': 0.150 / 100.0,
-        'y': 1.974 / 100.0,
-        'z': 0.074 / 100.0,
+class LettersDistributor:
+    ENGLISH_LETTERS = {
+        'a': 0.0651738,
+        'b': 0.0124248,
+        'c': 0.0217339,
+        'd': 0.0349835,
+        'e': 0.1041442,
+        'f': 0.0197881,
+        'g': 0.0158610,
+        'h': 0.0492888,
+        'i': 0.0558094,
+        'j': 0.0009033,
+        'k': 0.0050529,
+        'l': 0.0331490,
+        'm': 0.0202124,
+        'n': 0.0564513,
+        'o': 0.0596302,
+        'p': 0.0137645,
+        'q': 0.0008606,
+        'r': 0.0497563,
+        's': 0.0515760,
+        't': 0.0729357,
+        'u': 0.0225134,
+        'v': 0.0082903,
+        'w': 0.0171272,
+        'x': 0.0013692,
+        'y': 0.0145984,
+        'z': 0.0007836,
+        ' ': 0.1918182,
     }
 
     def english(self):
         result = {}
 
-        chars = sorted(self.ENG_FREQ.keys())
+        chars = sorted(self.ENGLISH_LETTERS.keys())
         for pos, ch1 in enumerate(chars):
             for ch2 in chars[pos+1:]:
-                result[(ch1, ch2)] = self.ENG_FREQ[ch1] * self.ENG_FREQ[ch2]
+                result[(ch1, ch2)] = self.ENGLISH_LETTERS[ch1] * self.ENGLISH_LETTERS[ch2]
 
         return result
 
@@ -82,62 +63,10 @@ class LettersDistribution:
 
         freqSum = sum([freq for freq in freqTab.values()])
         print('[i] Sum \'m^m\' probabilities: ' + str(freqSum * 2))
-
-        count_freq_m = sum([f for f in self.ENG_FREQ.values()])
+'
+        count_freq_m = sum([f for f in self.ENGLISH_LETTERS.values()])
         print('[i] Sum \'m\' probabilities:   ' + str(count_freq_m))
         print('[i] ------')
-
-
-class Decoder:
-    def __init__(self):
-        self._xor_keys = {}
-
-    def decode(self, encTexts):
-        encTexts = self._prepare(encTexts)
-
-        for num, s1 in enumerate(encTexts):
-            for s2 in encTexts[num+1:]:
-
-                keys_per_pos = []
-                for c1, c2 in zip(s1, s2):
-                    xorResult = c1 ^ c2
-
-                    # get keys
-                    if xorResult not in self._xor_keys:
-                        self._xor_keys[xorResult] = []
-
-                        for num, m1 in enumerate(string.letters + string.digits):
-                            for m2 in (string.letters + string.digits)[num+1:]:
-                                if ord(m1) ^ ord(m2) == xorResult:
-                                    key1 = c1 ^ c2 ^ ord(m1)
-                                    key2 = c1 ^ c2 ^ ord(m2)
-                                    self._xor_keys[xorResult].append(key1)
-                                    self._xor_keys[xorResult].append(key2)
-
-                    keys_per_pos.append(self._xor_keys[xorResult])
-
-                # check keys in column
-                valid_keys_per_pos = []
-                for pos, keys in enumerate(keys_per_pos):
-                    valid_keys = []
-                    for k in keys:
-                        for s in encTexts:
-                            if chr(s[pos] ^ k) in string.letters + string.digits:
-                                valid_keys.append(k)
-
-                    valid_keys_per_pos.append(valid_keys)
-
-        output = ''
-        for valid_keys in valid_keys_per_pos:
-            output += str(len(valid_keys))
-
-        print 'output ', output
-
-    def _prepare(self, encTexts):
-        encTexts = trim_to_equal_length(encTexts)
-        showHexArrays('Trimmed sequences:', encTexts)
-
-        return encTexts
 
 
 class TtpDecoder:
