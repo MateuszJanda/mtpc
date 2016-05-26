@@ -67,7 +67,7 @@ class LettersDistributor:
         print('[i] ------')
 
 
-class TtpDecoder:
+class Cracker:
     def __init__(self, freqTab, charBase):
         self._analyzer = TtpAnalyzer()
         self._matcher = TtpBestFreqMatcher(freqTab, 0.3)
@@ -219,6 +219,3 @@ class Viewer:
     def _get_key(self, keysCandidates):
         key = [k[0] if k else None for k in keysCandidates]
         return key
-
-if __name__ == '__main__':
-    main()
