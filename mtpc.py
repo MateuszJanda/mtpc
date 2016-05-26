@@ -2,8 +2,6 @@
 # Author: Mateusz Janda (mateusz.janda@gmail.com)
 # Ad maiorem Dei gloriam
 
-import base64
-import string
 import itertools
 from collections import Counter
 from collections import namedtuple
@@ -42,13 +40,14 @@ class LettersDistributor:
         ' ': 0.1918182,
     }
 
-    def distribution(self):
+    @staticmethod
+    def distribution(lettersDist):
         result = {}
 
-        chars = sorted(self.ENGLISH_LETTERS.keys())
+        chars = sorted(lettersDist.keys())
         for pos, ch1 in enumerate(chars):
             for ch2 in chars[pos+1:]:
-                result[(ch1, ch2)] = self.ENGLISH_LETTERS[ch1] * self.ENGLISH_LETTERS[ch2]
+                result[(ch1, ch2)] = lettersDist[ch1] * lettersDist[ch2]
 
         return result
 
@@ -73,7 +72,7 @@ class Cracker:
         self._matcher = TtpBestFreqMatcher(freqTab, 0.3)
         self._charBase = charBase
 
-    def decode(self, encTexts):
+    def run(self, encTexts):
         ttpData = self._analyzer.count(encTexts)
         keysPairsCombination = self._keysCombinationsForAllParis(ttpData)
         keysCombination = self._keysCombinationPerPos(keysPairsCombination)
@@ -197,15 +196,9 @@ class TtpBestFreqMatcher:
         return uniqueLetters
 
 
-def showHexArrays(text, encTexts):
-    print(text)
-    for e in encTexts:
-        print(['0x' + '{:02x}'.format(x) for x in e])
-
-
 class Viewer:
     def show(self, encTexts, keysCandidates, charBase):
-        key = self._get_key(keysCandidates)
+        key = self._getKey(keysCandidates)
         for encText in encTexts:
             output = ''
             for c, k in zip(encText, key):
@@ -216,6 +209,6 @@ class Viewer:
 
         print('final: ' + output)
 
-    def _get_key(self, keysCandidates):
+    def _getKey(self, keysCandidates):
         key = [k[0] if k else None for k in keysCandidates]
         return key
