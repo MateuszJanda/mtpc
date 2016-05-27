@@ -6,6 +6,7 @@ import itertools
 from collections import Counter
 from collections import namedtuple
 import operator
+import math
 
 
 class LettersDistributor:
@@ -47,7 +48,7 @@ class LettersDistributor:
         chars = sorted(lettersDist.keys())
         for pos, ch1 in enumerate(chars):
             for ch2 in chars[pos+1:]:
-                result[(ch1, ch2)] = lettersDist[ch1] * lettersDist[ch2]
+                result[(ch1, ch2)] = 2 * math.fabs(lettersDist[ch1] * lettersDist[ch1] - lettersDist[ch2] * lettersDist[ch2])
 
         return result
 
@@ -69,7 +70,7 @@ class LettersDistributor:
 class Cracker:
     def __init__(self, freqTab, charBase):
         self._analyzer = TtpAnalyzer()
-        self._matcher = TtpBestFreqMatcher(freqTab, 0.3)
+        self._possibleLettersByFreq = TtpBestFreqMatcher(freqTab, 0.3).possibleLettersByFreq
         self._charBase = charBase
 
     def run(self, encTexts):
@@ -92,7 +93,7 @@ class Cracker:
             if xorResult == 0:
                 keys.append(set())
             else:
-                letters = self._matcher.possibleLettersByFreq(xorsFreqs[xorResult])
+                letters = self._possibleLettersByFreq(xorsFreqs[xorResult])
                 keys.append(self._possibleKeysByLetters(c1, c2, letters))
 
         return keys
@@ -117,8 +118,6 @@ class Cracker:
             for k in keys:
                 if self._testColumn(pos, k, ttpData.encTexts):
                     possibleKeys[-1].append(k)
-
-        print 'output ', ''.join([str(len(keys)) for keys in possibleKeys])
 
         return possibleKeys
 
@@ -207,7 +206,8 @@ class Viewer:
                 else:
                     output += '_'
 
-        print('final: ' + output)
+        print 'Keys counts:', ''.join(['*' if len(keys) >= 10 else str(len(keys)) for keys in keysCandidates])
+        print('Secret key :' + output)
 
     def _getKey(self, keysCandidates):
         key = [k[0] if k else None for k in keysCandidates]
