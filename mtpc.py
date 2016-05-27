@@ -48,41 +48,41 @@ class LettersDistributor:
         chars = sorted(lettersDist.keys())
         for pos, ch1 in enumerate(chars):
             for ch2 in chars[pos+1:]:
-                result[(ch1, ch2)] = 2 * math.fabs(lettersDist[ch1] * lettersDist[ch1] - lettersDist[ch2] * lettersDist[ch2])
+                result[(ch1, ch2)] = math.fabs(lettersDist[ch1] ** 2 - lettersDist[ch2] ** 2) * 2
 
         return result
 
     def info(self):
-        print('[i] English - second order letters distribution')
+        print('[i] Second order letters distribution')
         freqTab = self.distribution()
         sortedTab = sorted(freqTab.items(), key=operator.itemgetter(1), reverse=True)
         for letters, freq in sortedTab:
             print('[i] ' + str(letters) + ': ' + str(freq))
 
         freqSum = sum([freq for freq in freqTab.values()])
-        print('[i] Sum \'m^m\' probabilities: ' + str(freqSum * 2))
+        print('[i] Sum \'m1^m2\' probabilities: ' + str(freqSum * 2))
 
         countFreqM = sum([f for f in self.ENGLISH_LETTERS.values()])
-        print('[i] Sum \'m\' probabilities:   ' + str(countFreqM))
+        print('[i] Sum \'m\' probabilities:     ' + str(countFreqM))
         print('[i] ------')
 
 
 class Cracker:
     def __init__(self, freqTab, charBase):
-        self._analyzer = TtpAnalyzer()
-        self._possibleLettersByFreq = TtpBestFreqMatcher(freqTab, 0.3).possibleLettersByFreq
+        self._analyzer = Analyzer()
         self._charBase = charBase
+        self._possibleLettersByFreq = FreqMatcher(freqTab, 0.3).match
 
     def run(self, encTexts):
-        ttpData = self._analyzer.count(encTexts)
-        keysPairsCombination = self._keysCombinationsForAllParis(ttpData)
+        encData = self._analyzer.count(encTexts)
+        keysPairsCombination = self._keysCombinationsForAllParis(encData)
         keysCombination = self._keysCombinationPerPos(keysPairsCombination)
-        return self._filterKeys(ttpData, keysCombination)
+        return self._filterKeys(encData, keysCombination)
 
-    def _keysCombinationsForAllParis(self, ttpData):
-        keysCombinations = [self._possibleKeysForTwoEncTexts(enc1, enc2, ttpData.xorsFreqs)
-                                for pos, enc1 in enumerate(ttpData.encTexts)
-                                    for enc2 in ttpData.encTexts[pos+1:]]
+    def _keysCombinationsForAllParis(self, encData):
+        keysCombinations = [self._possibleKeysForTwoEncTexts(enc1, enc2, encData.xorsFreqs)
+                                for pos, enc1 in enumerate(encData.encTexts)
+                                    for enc2 in encData.encTexts[pos+1:]]
 
         return keysCombinations
 
@@ -111,12 +111,12 @@ class Cracker:
 
         return possibleKeys
 
-    def _filterKeys(self, ttpData, keysPerPos):
+    def _filterKeys(self, encData, keysPerPos):
         possibleKeys = []
         for pos, keys in enumerate(keysPerPos):
             possibleKeys.append([])
             for k in keys:
-                if self._testColumn(pos, k, ttpData.encTexts):
+                if self._testColumn(pos, k, encData.encTexts):
                     possibleKeys[-1].append(k)
 
         return possibleKeys
@@ -131,10 +131,10 @@ class Cracker:
         return True
 
 
-TtpData = namedtuple('TtpData', ['encTexts', 'xorsCounts', 'xorsFreqs'])
+EncData = namedtuple('EncData', ['encTexts', 'xorsCounts', 'xorsFreqs'])
 
 
-class TtpAnalyzer:
+class Analyzer:
     def __init__(self, verbose=False):
         self._verbose = verbose
 
@@ -142,11 +142,11 @@ class TtpAnalyzer:
         xorsCounts = self._countXors(encTexts)
         xorsFreqs = self._countFreq(xorsCounts)
 
-        ttpData = TtpData(encTexts, xorsCounts, xorsFreqs)
+        encData = EncData(encTexts, xorsCounts, xorsFreqs)
         if self._verbose:
-            self._printStats(ttpData)
+            self._printStats(encData)
 
-        return ttpData
+        return encData
 
     def _countXors(self, encTexts):
         xorsCounts = Counter()
@@ -159,7 +159,7 @@ class TtpAnalyzer:
     def _countXorsInPair(self, xorsCounts, enc1, enc2):
         for c1, c2 in zip(enc1, enc2):
             xorResult = c1 ^ c2
-            # xor-owanie tych samych znakow daje 0 i nie mozna stwierdzic co to za znaki
+            # xor-ing same characters give as 0, and we can't determine what this character are
             if xorResult == 0:
                 continue
             xorsCounts[xorResult] += 1
@@ -172,30 +172,30 @@ class TtpAnalyzer:
 
         return xorsFreqs
 
-    def _printStats(self, ttpData):
+    def _printStats(self, encData):
         print('[i] Frequencies (c^c -> freq):')
-        for cc, f in ttpData.xorsFreqs.items():
+        for cc, f in encData.xorsFreqs.items():
             print('[i] ' + '0x' + '{:02x}'.format(cc) + ': ' + str(f))
 
-        print('[i] Unique \'c^c\' elements: ' + str(len(ttpData.xorsCounts)))
-        freqSum = sum([f for f in ttpData.xorsFreqs.values()])
-        print('[i] Sum \'c^c\' probabilities: ' + str(freqSum))
+        print('[i] Unique \'c1^c2\' elements: ' + str(len(encData.xorsCounts)))
+        freqSum = sum([f for f in encData.xorsFreqs.values()])
+        print('[i] Sum \'c1^c2\' probabilities: ' + str(freqSum))
         print('-----')
 
 
-class TtpBestFreqMatcher:
+class FreqMatcher:
     def __init__(self, freqTab, delta):
         self._freqTab = freqTab
         self._delta = delta
 
-    def possibleLettersByFreq(self, xorFreq):
+    def match(self, xorFreq):
         letters = [letters for letters, f in self._freqTab.items()
                    if xorFreq > (f - self._delta) and xorFreq < (f + self._delta)]
         uniqueLetters = set([l for l in itertools.chain(*letters)])
         return uniqueLetters
 
 
-class Viewer:
+class ResultView:
     def show(self, encTexts, keysCandidates, charBase):
         key = self._getKey(keysCandidates)
         for encText in encTexts:
@@ -206,8 +206,8 @@ class Viewer:
                 else:
                     output += '_'
 
-        print 'Keys counts:', ''.join(['*' if len(keys) >= 10 else str(len(keys)) for keys in keysCandidates])
-        print('Secret key :' + output)
+        print('Keys counts:', ''.join(['*' if len(keys) >= 10 else str(len(keys)) for keys in keysCandidates]))
+        print('Secret key :', output)
 
     def _getKey(self, keysCandidates):
         key = [k[0] if k else None for k in keysCandidates]
