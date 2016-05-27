@@ -25,7 +25,8 @@ class TestCracker(unittest.TestCase):
         }
         charBase = 'a'
         freqTab = mtpc.LettersDistributor.distribution(lettersDist)
-        c = mtpc.Cracker(freqTab, charBase)
+        matcher = mtpc.FreqMatcher(freqTab, delta=0.15).match
+        c = mtpc.Cracker(charBase, matcher)
 
         encTexts = [
             encryptOtp(text='a', key='a'),
@@ -42,7 +43,8 @@ class TestCracker(unittest.TestCase):
         }
         charBase = 'ab'
         freqTab = mtpc.LettersDistributor.distribution(lettersDist)
-        c = mtpc.Cracker(freqTab, charBase)
+        matcher = mtpc.FreqMatcher(freqTab, delta=0.15).match
+        c = mtpc.Cracker(charBase, matcher)
 
         encTexts = [
             encryptOtp(text='a', key='b'),
@@ -59,7 +61,8 @@ class TestCracker(unittest.TestCase):
         }
         charBase = 'ab'
         freqTab = mtpc.LettersDistributor.distribution(lettersDist)
-        c = mtpc.Cracker(freqTab, charBase)
+        matcher = mtpc.FreqMatcher(freqTab, delta=0.15).match
+        c = mtpc.Cracker(charBase, matcher)
 
         encTexts = [
             encryptOtp(text='a', key='b'),
@@ -76,7 +79,8 @@ class TestCracker(unittest.TestCase):
         }
         charBase = 'ab'
         freqTab = mtpc.LettersDistributor.distribution(lettersDist)
-        c = mtpc.Cracker(freqTab, charBase)
+        matcher = mtpc.FreqMatcher(freqTab, delta=0.15).match
+        c = mtpc.Cracker(charBase, matcher)
 
         encTexts = [
             encryptOtp(text='aaba', key='abaa'),
@@ -89,32 +93,33 @@ class TestCracker(unittest.TestCase):
                                                [ord('a'), ord('b')],
                                                []])
 
-    # def test_crack_whenThreeLettersInDistTable(self):
-    #     lettersDist = {
-    #         'a': 0.6,
-    #         'b': 0.3,
-    #         'c': 0.1
-    #     }
-    #     charBase = 'abc'
-    #     freqTab = mtpc.LettersDistributor.distribution(lettersDist)
-    #     c = mtpc.Cracker(freqTab, charBase)
-    #
-    #     encTexts = [
-    #         encryptOtp(text='aababbacaa', key='abaaacaabb'),
-    #         encryptOtp(text='bcaaabbaaa', key='abaaacaabb')
-    #     ]
-    #
-    #     keysCandidates = c.run(encTexts)
-    #     self.assertItemsEqual(keysCandidates, [[ord('a'), ord('b')],
-    #                                            [],
-    #                                            [ord('a'), ord('b')],
-    #                                            [],
-    #                                            [],
-    #                                            [],
-    #                                            [],
-    #                                            [],
-    #                                            [],
-    #                                            []])
+    def test_crack_whenThreeLettersInDistTable(self):
+        lettersDist = {
+            'a': 0.6,
+            'b': 0.3,
+            'c': 0.1
+        }
+        charBase = 'abc'
+        freqTab = mtpc.LettersDistributor.distribution(lettersDist)
+        matcher = mtpc.FreqMatcher(freqTab, delta=0.15).match
+        c = mtpc.Cracker(charBase, matcher)
+
+        encTexts = [
+            encryptOtp(text='aababbacaa', key='abaaacaabb'),
+            encryptOtp(text='bcaaabbaaa', key='abaaacaabb')
+        ]
+
+        keysCandidates = c.run(encTexts)
+        self.assertItemsEqual(keysCandidates, [[ord('a'), ord('b')],
+                                               [],
+                                               [ord('a'), ord('b')],
+                                               [],
+                                               [ord('a'), ord('b')],
+                                               [],
+                                               [ord('a'), ord('b')],
+                                               [ord('a'), ord('c')],
+                                               [],
+                                               []])
 
 
 class TestLettersDistributor(unittest.TestCase):

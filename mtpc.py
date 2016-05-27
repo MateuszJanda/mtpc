@@ -73,10 +73,10 @@ class LettersDistributor:
 
 
 class Cracker:
-    def __init__(self, freqTab, charBase):
+    def __init__(self, charBase, matcher):
         self._analyzer = Analyzer()
         self._charBase = charBase
-        self._possibleLettersByFreq = FreqMatcher(freqTab, 0.3).match
+        self._possibleLettersByFreq = matcher
 
     def run(self, encTexts):
         encData = self._analyzer.count(encTexts)
@@ -173,7 +173,7 @@ class Analyzer:
         xorsFreqs = {}
         total = sum([count for _, count in xorsCounts.iteritems()])
         for mm, count in xorsCounts.iteritems():
-            xorsFreqs[mm] = count / float(total)
+            xorsFreqs[mm] = count / total
 
         return xorsFreqs
 
