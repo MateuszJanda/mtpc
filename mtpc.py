@@ -2,6 +2,7 @@
 # Author: Mateusz Janda (mateusz.janda@gmail.com)
 # Ad maiorem Dei gloriam
 
+from __future__ import division
 import itertools
 from collections import Counter
 from collections import namedtuple
@@ -42,17 +43,21 @@ class LettersDistributor:
     }
 
     @staticmethod
-    def distribution(lettersDist):
-        result = {}
+    def distribution(lettersDist=ENGLISH_LETTERS):
+        freqTab = {}
 
         chars = sorted(lettersDist.keys())
         for pos, ch1 in enumerate(chars):
             for ch2 in chars[pos+1:]:
-                result[(ch1, ch2)] = math.fabs(lettersDist[ch1] ** 2 - lettersDist[ch2] ** 2) * 2
+                freqTab[(ch1, ch2)] = lettersDist[ch1] * lettersDist[ch2]
 
-        return result
+        freqSum = sum([freq for freq in freqTab.values()])
+        for k, v in freqTab.items():
+            freqTab[k] = v/freqSum
 
-    def info(self):
+        return freqTab
+
+    def info(self, lettersDist=ENGLISH_LETTERS):
         print('[i] Second order letters distribution')
         freqTab = self.distribution()
         sortedTab = sorted(freqTab.items(), key=operator.itemgetter(1), reverse=True)
@@ -62,7 +67,7 @@ class LettersDistributor:
         freqSum = sum([freq for freq in freqTab.values()])
         print('[i] Sum \'m1^m2\' probabilities: ' + str(freqSum * 2))
 
-        countFreqM = sum([f for f in self.ENGLISH_LETTERS.values()])
+        countFreqM = sum([f for f in lettersDist.values()])
         print('[i] Sum \'m\' probabilities:     ' + str(countFreqM))
         print('[i] ------')
 
@@ -173,7 +178,7 @@ class Analyzer:
         return xorsFreqs
 
     def _printStats(self, encData):
-        print('[i] Frequencies (c^c -> freq):')
+        print('[i] Frequencies (c1^c2 -> freq):')
         for cc, f in encData.xorsFreqs.items():
             print('[i] ' + '0x' + '{:02x}'.format(cc) + ': ' + str(f))
 
@@ -206,8 +211,8 @@ class ResultView:
                 else:
                     output += '_'
 
-        print('Keys counts:', ''.join(['*' if len(keys) >= 10 else str(len(keys)) for keys in keysCandidates]))
-        print('Secret key :', output)
+        print('Keys counts: ' + ''.join(['*' if len(keys) >= 10 else str(len(keys)) for keys in keysCandidates]))
+        print('Secret key : ' + output)
 
     def _getKey(self, keysCandidates):
         key = [k[0] if k else None for k in keysCandidates]

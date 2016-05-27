@@ -116,6 +116,14 @@ class TestCracker(unittest.TestCase):
     #                                            [],
     #                                            []])
 
+
+class TestLettersDistributor(unittest.TestCase):
+    def test(self):
+        d = mtpc.LettersDistributor.distribution()
+        freqSum = sum([f for f in d.values()])
+        self.assertAlmostEqual(freqSum, 1.0)
+
+
 # python -m unittest discover --pattern=mtpc_tests.py
 if __name__ == '__main__':
     unittest.main()
