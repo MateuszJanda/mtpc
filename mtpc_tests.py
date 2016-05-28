@@ -93,6 +93,31 @@ class TestCracker(unittest.TestCase):
                                                [ord('a'), ord('b')],
                                                []])
 
+    # def test_crack_whenCharBaseIsLargerThanKeysInDistributionTable(self):
+    #     lettersDist = {
+    #         'a': 0.75,
+    #         'b': 0.25
+    #     }
+    #     charBase = 'abc'
+    #     freqTab = mtpc.LettersDistributor.distribution(lettersDist)
+    #     matcher = mtpc.FreqMatcher(freqTab, delta=0.51).match
+    #     c = mtpc.Cracker(charBase, matcher)
+    #
+    #     encTexts = [
+    #         encryptOtp(text='aaca', key='abaa'),
+    #         encryptOtp(text='baaa', key='abaa')
+    #     ]
+    #
+    #     keysCandidates = c.run(encTexts)
+    #     self.assertItemsEqual(keysCandidates, [[ord('a'), ord('b')],
+    #                                            [],
+    #                                            [ord('c')],
+    #                                            []])
+    #     self.assertItemsEqual(keysCandidates, [[],
+    #                                            [],
+    #                                            [],
+    #                                            []])
+
     def test_crack_whenThreeLettersInDistTable(self):
         lettersDist = {
             'a': 0.6,
@@ -129,6 +154,6 @@ class TestLettersDistributor(unittest.TestCase):
         self.assertAlmostEqual(freqSum, 1.0)
 
 
-# python -m unittest discover --pattern=mtpc_tests.py
 if __name__ == '__main__':
+    """ python -m unittest discover --pattern=mtpc_tests.py """
     unittest.main()

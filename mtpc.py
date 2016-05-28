@@ -2,6 +2,7 @@
 # Author: Mateusz Janda (mateusz.janda@gmail.com)
 # Ad maiorem Dei gloriam
 
+
 from __future__ import division
 import itertools
 from collections import Counter
@@ -104,7 +105,7 @@ class Cracker:
         return keys
 
     def _possibleKeysByLetters(self, c1, c2, letters):
-        return set([c1 ^ c2 ^ ord(l) for l in letters])
+        return set([c1 ^ c2 ^ ord(k) for k in letters])
 
     def _keysCombinationPerPos(self, keysCombinations):
         possibleKeys = []
@@ -194,9 +195,9 @@ class FreqMatcher:
         self._delta = delta
 
     def match(self, xorFreq):
-        letters = [letters for letters, f in self._freqTab.items()
-                   if xorFreq > (f - self._delta) and xorFreq < (f + self._delta)]
-        uniqueLetters = set([l for l in itertools.chain(*letters)])
+        probLetters = [letters for letters, f in self._freqTab.items()
+                       if (f - self._delta) < xorFreq < (f + self._delta)]
+        uniqueLetters = set([l for l in itertools.chain(*probLetters)])
         return uniqueLetters
 
 
