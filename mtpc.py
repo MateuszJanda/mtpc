@@ -2,6 +2,11 @@
 # Author: Mateusz Janda (mateusz.janda@gmail.com)
 # Ad maiorem Dei gloriam
 
+"""
+Knowledge base:
+http://crypto.stackexchange.com/questions/59/taking-advantage-of-one-time-pad-key-reuse
+http://www.data-compression.com/english.html
+"""
 
 from __future__ import division
 import itertools
