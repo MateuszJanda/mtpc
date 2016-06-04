@@ -6,6 +6,7 @@
 Knowledge base:
 http://crypto.stackexchange.com/questions/59/taking-advantage-of-one-time-pad-key-reuse
 http://www.data-compression.com/english.html
+https://en.wiktionary.org/wiki/Wiktionary:Frequency_lists
 """
 
 from __future__ import division
@@ -58,8 +59,8 @@ class LettersDistributor:
                 freqTab[(ch1, ch2)] = lettersDist[ch1] * lettersDist[ch2]
 
         freqSum = sum([freq for freq in freqTab.values()])
-        for k, v in freqTab.items():
-            freqTab[k] = v/freqSum
+        for lettersPair, freq in freqTab.items():
+            freqTab[lettersPair] = freq / freqSum
 
         return freqTab
 
@@ -79,42 +80,43 @@ class LettersDistributor:
 
 
 class Cracker:
-    def __init__(self, charBase, matcher):
+    def __init__(self, charBase, msgMatcher):
         self._analyzer = Analyzer()
         self._charBase = charBase
-        self._possibleLettersByFreq = matcher
+        self._matchMsgBytesByFreq = msgMatcher
 
-    def run(self, encTexts):
-        encData = self._analyzer.count(encTexts)
-        keysPairsCombination = self._keysCombinationsForAllParis(encData)
-        keysCombination = self._keysCombinationPerPos(keysPairsCombination)
-        return self._filterKeys(encData, keysCombination)
+    def run(self, encMsgs):
+        encData = self._analyzer.count(encMsgs)
+        keys = self._getKeyBytes(encData)
+        keys = self._filterKeys(encData, keys)
+        return keys
 
-    def _keysCombinationsForAllParis(self, encData):
-        keysCombinations = [self._possibleKeysForTwoEncTexts(enc1, enc2, encData.xorsFreqs)
-                                for pos, enc1 in enumerate(encData.encTexts)
-                                    for enc2 in encData.encTexts[pos+1:]]
+    def _getKeyBytes(self, encData):
+        keyCombinations = [self._predictKeyFotTwoEncMsgs(enc1, enc2, encData.xorsFreqs)
+                                for pos, enc1 in enumerate(encData.encMsgs)
+                                    for enc2 in encData.encMsgs[pos+1:]]
 
-        return keysCombinations
+        keys = self._mergeKeyBytesPerPos(keyCombinations)
+        return keys
 
-    def _possibleKeysForTwoEncTexts(self, enc1, enc2, xorsFreqs):
+    def _predictKeyFotTwoEncMsgs(self, enc1, enc2, xorsFreqs):
         keys = []
         for c1, c2 in zip(enc1, enc2):
             xorResult = c1 ^ c2
             if xorResult == 0:
                 keys.append(set())
             else:
-                letters = self._possibleLettersByFreq(xorsFreqs[xorResult])
-                keys.append(self._possibleKeysByLetters(c1, c2, letters))
+                msgBytes = self._matchMsgBytesByFreq(xorsFreqs[xorResult])
+                keys.append(self._matchKeyBytesByMsgBytes(c1, c2, msgBytes))
 
         return keys
 
-    def _possibleKeysByLetters(self, c1, c2, letters):
-        return set([c1 ^ c2 ^ ord(k) for k in letters])
+    def _matchKeyBytesByMsgBytes(self, c1, c2, msgBytes):
+        return set([c1 ^ c2 ^ m for m in msgBytes])
 
-    def _keysCombinationPerPos(self, keysCombinations):
+    def _mergeKeyBytesPerPos(self, keyCombinations):
         possibleKeys = []
-        for comb in keysCombinations:
+        for comb in keyCombinations:
             for pos, keys in enumerate(comb):
                 if pos >= len(possibleKeys):
                     possibleKeys.append(set())
@@ -127,42 +129,42 @@ class Cracker:
         for pos, keys in enumerate(keysPerPos):
             possibleKeys.append([])
             for k in keys:
-                if self._testColumn(pos, k, encData.encTexts):
+                if self._testColumn(pos, k, encData.encMsgs):
                     possibleKeys[-1].append(k)
 
         return possibleKeys
 
-    def _testColumn(self, pos, key, encTexts):
-        for enc in encTexts:
-            if pos >= len(enc):
+    def _testColumn(self, pos, key, encMsgs):
+        for encMsg in encMsgs:
+            if pos >= len(encMsg):
                 continue
-            if chr(enc[pos] ^ key) not in self._charBase:
+            if chr(encMsg[pos] ^ key) not in self._charBase:
                 return False
 
         return True
 
 
-EncData = namedtuple('EncData', ['encTexts', 'xorsCounts', 'xorsFreqs'])
+EncData = namedtuple('EncData', ['encMsgs', 'xorsCounts', 'xorsFreqs'])
 
 
 class Analyzer:
     def __init__(self, verbose=False):
         self._verbose = verbose
 
-    def count(self, encTexts):
-        xorsCounts = self._countXors(encTexts)
+    def count(self, encMsgs):
+        xorsCounts = self._countXors(encMsgs)
         xorsFreqs = self._countFreq(xorsCounts)
 
-        encData = EncData(encTexts, xorsCounts, xorsFreqs)
+        encData = EncData(encMsgs, xorsCounts, xorsFreqs)
         if self._verbose:
             self._printStats(encData)
 
         return encData
 
-    def _countXors(self, encTexts):
+    def _countXors(self, encMsgs):
         xorsCounts = Counter()
-        for num, enc1 in enumerate(encTexts):
-            for enc2 in encTexts[num+1:]:
+        for num, enc1 in enumerate(encMsgs):
+            for enc2 in encMsgs[num+1:]:
                 self._countXorsInPair(xorsCounts, enc1, enc2)
 
         return xorsCounts
@@ -202,16 +204,16 @@ class FreqMatcher:
     def match(self, xorFreq):
         probLetters = [letters for letters, f in self._freqTab.items()
                        if (f - self._delta) < xorFreq < (f + self._delta)]
-        uniqueLetters = set([l for l in itertools.chain(*probLetters)])
+        uniqueLetters = set([ord(l) for l in itertools.chain(*probLetters)])
         return uniqueLetters
 
 
 class ResultView:
-    def show(self, encTexts, keysCandidates, charBase):
+    def show(self, encMsgs, keysCandidates, charBase):
         key = self._getKey(keysCandidates)
 
         self._printKeysCounts(keysCandidates)
-        self._printSecretMsgs(encTexts, key, charBase)
+        self._printSecretMsgs(encMsgs, key, charBase)
         self._printSecretKey(key, charBase)
 
     def _getKey(self, keysCandidates):
@@ -221,10 +223,10 @@ class ResultView:
     def _printKeysCounts(self, keysCandidates):
         print('Keys counts: ' + ''.join(['*' if len(keys) >= 10 else str(len(keys)) for keys in keysCandidates]))
 
-    def _printSecretMsgs(self, encTexts, key, charBase):
-        for encText in encTexts:
+    def _printSecretMsgs(self, encMsgs, key, charBase):
+        for encMsg in encMsgs:
             output = ''
-            for c, k in zip(encText, key):
+            for c, k in zip(encMsg, key):
                 if k and chr(c ^ k) in charBase:
                     output += chr(c ^ k)
                 else:
