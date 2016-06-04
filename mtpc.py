@@ -231,7 +231,7 @@ class ResultView:
         for encMsg in encMsgs:
             output = ''
             for c, k in zip(encMsg, key):
-                if k and chr(c ^ k) in charBase:
+                if k is not None and chr(c ^ k) in charBase:
                     output += chr(c ^ k)
                 else:
                     output += '_'
