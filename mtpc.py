@@ -14,6 +14,7 @@ import itertools
 from collections import Counter
 from collections import namedtuple
 import operator
+import string
 import math
 
 
@@ -195,7 +196,7 @@ class EncDataAnalyzer:
         print('[i] Unique \'c1^c2\' elements: ' + str(len(encData.xorsCounts)))
         freqSum = sum([f for f in encData.xorsFreqs.values()])
         print('[i] Sum \'c1^c2\' probabilities: ' + str(freqSum))
-        print('-----')
+        print('\n')
 
 
 class FreqMatcher:
@@ -253,3 +254,15 @@ class ResultView:
                 result += chr(k)
 
         print('[*]  Secret key:  ' + result)
+
+
+def crack(encMsgs):
+    freqTab = LettersDistributor.distribution(LettersDistributor.ENGLISH_LETTERS)
+    msgBytesMatcher = FreqMatcher(freqTab, delta=0.3).match
+
+    charBase = string.letters + ' '
+    cracker = Cracker(charBase, msgBytesMatcher)
+    keysCandidates = cracker.run(encMsgs)
+
+    v = ResultView()
+    v.show(encMsgs, keysCandidates, charBase)
