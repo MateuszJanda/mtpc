@@ -209,6 +209,19 @@ class FreqMatcher:
 class ResultView:
     def show(self, encTexts, keysCandidates, charBase):
         key = self._getKey(keysCandidates)
+
+        self._printKeysCounts(keysCandidates)
+        self._printSecretMsgs(encTexts, key, charBase)
+        self._printSecretKey(key, charBase)
+
+    def _getKey(self, keysCandidates):
+        key = [k[0] if k else None for k in keysCandidates]
+        return key
+
+    def _printKeysCounts(self, keysCandidates):
+        print('Keys counts: ' + ''.join(['*' if len(keys) >= 10 else str(len(keys)) for keys in keysCandidates]))
+
+    def _printSecretMsgs(self, encTexts, key, charBase):
         for encText in encTexts:
             output = ''
             for c, k in zip(encText, key):
@@ -216,10 +229,16 @@ class ResultView:
                     output += chr(c ^ k)
                 else:
                     output += '_'
+            print('Secret msg:  ' + output)
 
-        print('Keys counts: ' + ''.join(['*' if len(keys) >= 10 else str(len(keys)) for keys in keysCandidates]))
-        print('Secret key : ' + output)
+    def _printSecretKey(self, key, charBase):
+        result = ''
+        for k in key:
+            if k is None:
+                result += '_'
+            elif chr(k) not in charBase:
+                result += '?'
+            else:
+                result += chr(k)
 
-    def _getKey(self, keysCandidates):
-        key = [k[0] if k else None for k in keysCandidates]
-        return key
+        print('Secret key:  ' + result)
