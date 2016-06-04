@@ -10,10 +10,10 @@ from mock import call
 import mtpc
 
 
-def encryptOtp(text, key):
+def encryptOtp(msg, key):
     result = []
-    for t, k in zip(text, key):
-        result.append(ord(t) ^ ord(k))
+    for m, k in zip(msg, key):
+        result.append(ord(m) ^ ord(k))
 
     return result
 
@@ -28,12 +28,12 @@ class TestCracker(unittest.TestCase):
         matcher = mtpc.FreqMatcher(freqTab, delta=0.15).match
         c = mtpc.Cracker(charBase, matcher)
 
-        encTexts = [
-            encryptOtp(text='a', key='a'),
-            encryptOtp(text='a', key='a')
+        encMsgs = [
+            encryptOtp(msg='a', key='a'),
+            encryptOtp(msg='a', key='a')
         ]
 
-        keysCandidates = c.run(encTexts)
+        keysCandidates = c.run(encMsgs)
         self.assertItemsEqual(keysCandidates, [[]])
 
     def test_crack_whenTextMathLanguagePattern_returnProposal(self):
@@ -46,12 +46,12 @@ class TestCracker(unittest.TestCase):
         matcher = mtpc.FreqMatcher(freqTab, delta=0.15).match
         c = mtpc.Cracker(charBase, matcher)
 
-        encTexts = [
-            encryptOtp(text='a', key='b'),
-            encryptOtp(text='b', key='b')
+        encMsgs = [
+            encryptOtp(msg='a', key='b'),
+            encryptOtp(msg='b', key='b')
         ]
 
-        keysCandidates = c.run(encTexts)
+        keysCandidates = c.run(encMsgs)
         self.assertItemsEqual(keysCandidates, [[ord('a'), ord('b')]])
 
     def test_crack_whenFreqInDifferentOrder_returnProposal(self):
@@ -64,12 +64,12 @@ class TestCracker(unittest.TestCase):
         matcher = mtpc.FreqMatcher(freqTab, delta=0.15).match
         c = mtpc.Cracker(charBase, matcher)
 
-        encTexts = [
-            encryptOtp(text='a', key='b'),
-            encryptOtp(text='b', key='b')
+        encMsgs = [
+            encryptOtp(msg='a', key='b'),
+            encryptOtp(msg='b', key='b')
         ]
 
-        keysCandidates = c.run(encTexts)
+        keysCandidates = c.run(encMsgs)
         self.assertItemsEqual(keysCandidates, [[ord('a'), ord('b')]])
 
     def test_crack_whenTextIsLonger(self):
@@ -82,12 +82,12 @@ class TestCracker(unittest.TestCase):
         matcher = mtpc.FreqMatcher(freqTab, delta=0.15).match
         c = mtpc.Cracker(charBase, matcher)
 
-        encTexts = [
-            encryptOtp(text='aaba', key='abaa'),
-            encryptOtp(text='baaa', key='abaa')
+        encMsgs = [
+            encryptOtp(msg='aaba', key='abaa'),
+            encryptOtp(msg='baaa', key='abaa')
         ]
 
-        keysCandidates = c.run(encTexts)
+        keysCandidates = c.run(encMsgs)
         self.assertItemsEqual(keysCandidates, [[ord('a'), ord('b')],
                                                [],
                                                [ord('a'), ord('b')],
@@ -103,12 +103,12 @@ class TestCracker(unittest.TestCase):
         matcher = mtpc.FreqMatcher(freqTab, delta=0.51).match
         c = mtpc.Cracker(charBase, matcher)
 
-        encTexts = [
-            encryptOtp(text='aaca', key='abaa'),
-            encryptOtp(text='baaa', key='abaa')
+        encMsgs = [
+            encryptOtp(msg='aaca', key='abaa'),
+            encryptOtp(msg='baaa', key='abaa')
         ]
 
-        keysCandidates = c.run(encTexts)
+        keysCandidates = c.run(encMsgs)
         self.assertItemsEqual(keysCandidates, [[ord('a'), ord('b')],
                                                [],
                                                [ord('a'), ord('c')],
@@ -125,12 +125,12 @@ class TestCracker(unittest.TestCase):
         matcher = mtpc.FreqMatcher(freqTab, delta=0.15).match
         c = mtpc.Cracker(charBase, matcher)
 
-        encTexts = [
-            encryptOtp(text='aababbacaa', key='abaaacaabb'),
-            encryptOtp(text='bcaaabbaaa', key='abaaacaabb')
+        encMsgs = [
+            encryptOtp(msg='aababbacaa', key='abaaacaabb'),
+            encryptOtp(msg='bcaaabbaaa', key='abaaacaabb')
         ]
 
-        keysCandidates = c.run(encTexts)
+        keysCandidates = c.run(encMsgs)
         self.assertItemsEqual(keysCandidates, [[ord('a'), ord('b')],
                                                [96, ord('b')],
                                                [ord('a'), ord('b')],
