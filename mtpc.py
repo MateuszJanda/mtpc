@@ -215,6 +215,7 @@ class ResultView:
         key = self._getKey(keysCandidates)
 
         self._printKeysCounts(keysCandidates)
+        self._printIndex(key)
         self._printSecretMsgs(encMsgs, key, charBase)
         self._printSecretKey(key, charBase)
 
@@ -234,6 +235,12 @@ class ResultView:
                 else:
                     output += '_'
             print('[*]  Secret msg: ' + output)
+
+    def _printIndex(self, key):
+        output = ''
+        for i in xrange(len(key)):
+            output += str(i % 10)
+        print('[+] Index:       ' + output)
 
     def _printSecretKey(self, key, charBase):
         result = ''
