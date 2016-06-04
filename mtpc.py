@@ -112,7 +112,9 @@ class Cracker:
         return keys
 
     def _matchKeyBytesByMsgBytes(self, c1, c2, msgBytes):
-        return set([c1 ^ c2 ^ m for m in msgBytes])
+        keyBytes = [c1 ^ m for m in msgBytes]
+        keyBytes += [c2 ^ m for m in msgBytes]
+        return set(keyBytes)
 
     def _mergeKeyBytesPerPos(self, keyCombinations):
         possibleKeys = []
@@ -221,7 +223,7 @@ class ResultView:
         return key
 
     def _printKeysCounts(self, keysCandidates):
-        print('Keys counts: ' + ''.join(['*' if len(keys) >= 10 else str(len(keys)) for keys in keysCandidates]))
+        print('[*] Keys counts: ' + ''.join(['*' if len(keys) >= 10 else str(len(keys)) for keys in keysCandidates]))
 
     def _printSecretMsgs(self, encMsgs, key, charBase):
         for encMsg in encMsgs:
@@ -231,7 +233,7 @@ class ResultView:
                     output += chr(c ^ k)
                 else:
                     output += '_'
-            print('Secret msg:  ' + output)
+            print('[*]  Secret msg: ' + output)
 
     def _printSecretKey(self, key, charBase):
         result = ''
@@ -243,4 +245,4 @@ class ResultView:
             else:
                 result += chr(k)
 
-        print('Secret key:  ' + result)
+        print('[*]  Secret key:  ' + result)

@@ -136,7 +136,7 @@ class TestCracker(unittest.TestCase):
 
         keysCandidates = c.run(encTexts)
         self.assertItemsEqual(keysCandidates, [[ord('a'), ord('b')],
-                                               [],
+                                               [96, ord('b')],
                                                [ord('a'), ord('b')],
                                                [],
                                                [ord('a'), ord('b')],
