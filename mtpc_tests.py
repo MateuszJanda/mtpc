@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-# Author: Mateusz Janda (mateusz.janda@gmail.com)
+# Author: Mateusz Janda (mateusz.janda [at] gmail [dot] com)
 # Ad maiorem Dei gloriam
 
 import unittest
