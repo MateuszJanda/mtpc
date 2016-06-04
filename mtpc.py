@@ -80,10 +80,10 @@ class LettersDistributor:
 
 
 class Cracker:
-    def __init__(self, charBase, msgMatcher):
-        self._analyzer = Analyzer()
+    def __init__(self, charBase, msgBytesMatcher):
+        self._analyzer = EncDataAnalyzer()
         self._charBase = charBase
-        self._matchMsgBytesByFreq = msgMatcher
+        self._matchMsgBytesByFreq = msgBytesMatcher
 
     def run(self, encMsgs):
         encData = self._analyzer.count(encMsgs)
@@ -147,7 +147,7 @@ class Cracker:
 EncData = namedtuple('EncData', ['encMsgs', 'xorsCounts', 'xorsFreqs'])
 
 
-class Analyzer:
+class EncDataAnalyzer:
     def __init__(self, verbose=False):
         self._verbose = verbose
 
