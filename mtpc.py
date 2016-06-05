@@ -225,23 +225,26 @@ class ResultView:
         return key
 
     def _printKeysCounts(self, keysCandidates):
-        print('[*] Keys counts: ' + ''.join(['*' if len(keys) >= 10 else str(len(keys)) for keys in keysCandidates]))
+        print('[*] Keys counts  : ' + ''.join(['*' if len(keys) >= 10 else str(len(keys)) for keys in keysCandidates]))
 
     def _printSecretMsgs(self, encMsgs, key, charBase):
-        for encMsg in encMsgs:
+        for num, encMsg in enumerate(encMsgs):
             output = ''
             for c, k in zip(encMsg, key):
-                if k is not None and chr(c ^ k) in charBase:
+                if k is not None and chr(c ^ k) in string.printable:
                     output += chr(c ^ k)
                 else:
                     output += '_'
-            print('[*]  Secret msg: ' + output)
+            space = '  '
+            if num >= 10:
+                space = ' '
+            print('[*] Secret msg' + space + str(num) + ': ' + output)
 
     def _printIndex(self, key):
         output = ''
         for i in xrange(len(key)):
             output += str(i % 10)
-        print('[+] Index:       ' + output)
+        print('[+] Index        : ' + output)
 
     def _printSecretKey(self, key, charBase):
         result = ''
@@ -253,7 +256,7 @@ class ResultView:
             else:
                 result += chr(k)
 
-        print('[*]  Secret key:  ' + result)
+        print('[*] Secret key   : ' + result)
 
 
 def crack(encMsgs):
