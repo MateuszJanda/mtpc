@@ -265,21 +265,34 @@ def crackStream(encMsg):
     print len(encMsg)
     print encMsg
 
-    for length in range(2, 3):
-        print 'len ' + str(length)
+    min_dh = None
+    kl_dh = None
+
+    for length in range(2, 75):
+        # print 'len ' + str(length)
 
         bits = 0
         for l in range(length):
             e = encMsg[l::length]
-            print e
+            # print e
 
             c = e[0]
             for cc in e[1:]:
                 c ^= cc
             bits += bin(c).count('1')
-            print bin(c).count('1')
+            # print bin(c).count('1')
+
+        if min_dh is None:
+            min_dh = bits/length
+            kl_dh = length
+        elif (bits/length) < min_dh:
+            min_dh = bits/length
+            kl_dh = length
 
         print 'length(' + str(length) + '), DH: ' + str(bits/length)
+
+    print 'DH ' + str(min_dh)
+    print 'KL ' + str(kl_dh)
 
 
 def crack(encMsgs):
