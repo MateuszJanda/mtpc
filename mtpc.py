@@ -69,7 +69,7 @@ class LettersDistributor:
 
         return freqTab
 
-    def debug(self, lettersDist=ENGLISH_LETTERS):
+    def printDebug(self, lettersDist=ENGLISH_LETTERS):
         print('[i] Second order letters distribution')
         freqTab = self.distribution()
         sortedTab = sorted(freqTab.items(), key=operator.itemgetter(1), reverse=True)
@@ -263,7 +263,11 @@ class ResultView:
         print('[*] Secret key   : ' + result)
 
 
-def crackStream(encMsg):
+def keyLength(encMsg):
+    """
+    https://en.wikipedia.org/wiki/Hamming_weight
+    https://en.wikipedia.org/wiki/Hamming_distance
+    """
     print len(encMsg)
     print encMsg
 
