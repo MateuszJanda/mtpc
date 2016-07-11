@@ -6,6 +6,7 @@
 Knowledge base:
 http://crypto.stackexchange.com/questions/59/taking-advantage-of-one-time-pad-key-reuse
 http://www.data-compression.com/english.html
+https://picoctf.com/crypto_mats/#multi_byte_xor
 
 https://en.wikipedia.org/wiki/Most_common_words_in_English
 https://en.wiktionary.org/wiki/Wiktionary:Frequency_lists
@@ -268,25 +269,33 @@ def crackStream(encMsg):
     # kl_dh = None
     dh = {}
 
-    for length in range(2, 100):
+    for length in range(2, 120):
         # print 'len ' + str(length)
 
         bits = 0
         for l in range(length):
             e = encMsg[l::length]
-            # print e
 
-            c = e[0]
-            for cc in e[1:]:
-                c ^= cc
-            bits += bin(c).count('1')
-            # print bin(c).count('1')
+            z1 = e[0::2]
+            z2 = e[1::2]
+
+            bbb = 0
+            for a, b in zip(z1, z2):
+                bbb += bin(a ^ b).count('1')
+
+            bits += (bbb/len(zip(z1, z2)))
+
+
+            # c = e[0]
+            # for cc in e[1:]:
+            #     c ^= cc
+            # bits += bin(c).count('1')
 
         dh[length] = bits/length
 
         print 'length(' + str(length) + '), DH: ' + str(dh[length])
 
-    sortedTab = sorted(dh.items(), key=operator.itemgetter(1))
+    sortedTab = sorted(dh.items(), key=operator.itemgetter(1), reverse=True)
     for k, v in sortedTab:
         print('[i] ' + str(k) + ': ' + str(v))
 
