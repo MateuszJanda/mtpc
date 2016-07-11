@@ -6,6 +6,8 @@
 Knowledge base:
 http://crypto.stackexchange.com/questions/59/taking-advantage-of-one-time-pad-key-reuse
 http://www.data-compression.com/english.html
+
+https://en.wikipedia.org/wiki/Most_common_words_in_English
 https://en.wiktionary.org/wiki/Wiktionary:Frequency_lists
 """
 
@@ -257,6 +259,27 @@ class ResultView:
                 result += chr(k)
 
         print('[*] Secret key   : ' + result)
+
+
+def crackStream(encMsg):
+    print len(encMsg)
+    print encMsg
+
+    for length in range(2, 3):
+        print 'len ' + str(length)
+
+        bits = 0
+        for l in range(length):
+            e = encMsg[l::length]
+            print e
+
+            c = e[0]
+            for cc in e[1:]:
+                c ^= cc
+            bits += bin(c).count('1')
+            print bin(c).count('1')
+
+        print 'length(' + str(length) + '), DH: ' + str(bits/length)
 
 
 def crack(encMsgs):
