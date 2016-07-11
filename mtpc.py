@@ -265,10 +265,10 @@ def crackStream(encMsg):
     print len(encMsg)
     print encMsg
 
-    min_dh = None
-    kl_dh = None
+    # kl_dh = None
+    dh = {}
 
-    for length in range(2, 75):
+    for length in range(2, 100):
         # print 'len ' + str(length)
 
         bits = 0
@@ -282,17 +282,16 @@ def crackStream(encMsg):
             bits += bin(c).count('1')
             # print bin(c).count('1')
 
-        if min_dh is None:
-            min_dh = bits/length
-            kl_dh = length
-        elif (bits/length) < min_dh:
-            min_dh = bits/length
-            kl_dh = length
+        dh[length] = bits/length
 
-        print 'length(' + str(length) + '), DH: ' + str(bits/length)
+        print 'length(' + str(length) + '), DH: ' + str(dh[length])
 
-    print 'DH ' + str(min_dh)
-    print 'KL ' + str(kl_dh)
+    sortedTab = sorted(dh.items(), key=operator.itemgetter(1))
+    for k, v in sortedTab:
+        print('[i] ' + str(k) + ': ' + str(v))
+
+    # print 'DH ' + str(min_dh)
+    # print 'KL ' + str(kl_dh)
 
 
 def crack(encMsgs):
