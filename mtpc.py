@@ -263,7 +263,7 @@ class ResultView:
         print('[*] Secret key   : ' + result)
 
 
-def keyLength(encMsg):
+def crackStream(encMsg):
     """
     https://en.wikipedia.org/wiki/Hamming_weight
     https://en.wikipedia.org/wiki/Hamming_distance
@@ -309,7 +309,7 @@ def keyLength(encMsg):
 
 
 def crack(encMsgs):
-    freqTab = LettersDistributor.distribution(LettersDistributor.ENGLISH_LETTERS)
+    freqTab = LettersDistributor.distribution(ENGLISH_LETTERS)
     msgBytesMatcher = FreqMatcher(freqTab, delta=0.3).match
 
     charBase = string.letters + ' '
@@ -318,3 +318,4 @@ def crack(encMsgs):
 
     v = ResultView()
     v.show(encMsgs, keysCandidates, charBase)
+
