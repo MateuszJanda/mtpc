@@ -223,7 +223,6 @@ class ResultView:
     def show(self, encMsgs, keysCandidates, charBase):
         key = self._getKey(keysCandidates)
 
-        self._printEmptyLine()
         self._printKeysCounts(keysCandidates)
         self._printIndex(key)
         self._printSecretMsgs(encMsgs, key, charBase)
@@ -232,9 +231,6 @@ class ResultView:
     def _getKey(self, keysCandidates):
         key = [k[0] if k else None for k in keysCandidates]
         return key
-
-    def _printEmptyLine(self):
-        print('\n')
 
     def _printKeysCounts(self, keysCandidates):
         print('[*] Keys counts: ' + ''.join(['*' if len(keys) >= 10 else str(len(keys)) for keys in keysCandidates]))
@@ -256,7 +252,7 @@ class ResultView:
         output = ''
         for i in xrange(len(key)):
             output += str(i % 10)
-        print('[+] Index......: ' + output)
+        print('[*] Index......: ' + output)
 
     def _printSecretKey(self, key, charBase):
         result = ''
@@ -271,22 +267,31 @@ class ResultView:
         print('[*] Key (str)..: ' + result)
 
 
-def crackStream(encMsg, maxKeyLength=120):
-    print len(encMsg)
-    print encMsg
+def crackStream(encMsg, maxKeyLength=100, checks=5):
+    khd = kyeLengthsProposals(encMsg, maxKeyLength)
 
-    hd = {}
+    for n in range(checks):
+        keyLength, _ = khd[n]
+        encMsgChunks = [encMsg[i:keyLength+i] for i in range(0, len(encMsg), keyLength)]
+        print('\n[+] Check for key length: ' + str(keyLength))
+        crackBlocks(encMsgChunks)
+
+
+def kyeLengthsProposals(encMsg, maxKeyLength):
+    keysHD = {}
 
     for keyLength in range(2, maxKeyLength):
-        hd[keyLength] = hammingDistance(encMsg, keyLength)
+        keysHD[keyLength] = hammingDistance(encMsg, keyLength)
 
-    sortedTab = sorted(hd.items(), key=operator.itemgetter(1), reverse=True)
+    sortedTab = sorted(keysHD.items(), key=operator.itemgetter(1), reverse=True)
     print 'Hamming distance from worst to best:'
-    for k, v in sortedTab:
-        print('[+] Length [' + str(k) + '] : ' + str(v))
+    result = []
+    for k, hd in sortedTab:
+        print('[+] Length [' + str(k) + '] : ' + str(hd))
+        result.append([k, hd])
 
-    # print 'DH ' + str(min_dh)
-    # print 'KL ' + str(kl_dh)
+    result.reverse()
+    return result
 
 
 def hammingDistance(encMsg, keyLength):
@@ -302,7 +307,7 @@ def hammingDistance(encMsg, keyLength):
     return bits / keyLength
 
 
-def crack(encMsgs):
+def crackBlocks(encMsgs):
     freqTab = LettersDistributor.distribution(ENGLISH_LETTERS)
     msgBytesMatcher = FreqMatcher(freqTab, delta=0.3).match
 
