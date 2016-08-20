@@ -308,6 +308,18 @@ def crackStream(encMsg):
     # print 'KL ' + str(kl_dh)
 
 
+def hammingDistance(encMsg, keyLength):
+    bits = 0
+    block1 = encMsg[:keyLength]
+    block2 = encMsg[keyLength:2*keyLength]
+
+    for l in range(keyLength):
+        bits += bin(block1[l] ^ block2[l]).count('1')
+
+    # normalized Hamming distance
+    return bits / keyLength
+
+
 def crack(encMsgs):
     freqTab = LettersDistributor.distribution(ENGLISH_LETTERS)
     msgBytesMatcher = FreqMatcher(freqTab, delta=0.3).match
