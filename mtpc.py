@@ -223,6 +223,7 @@ class ResultView:
     def show(self, encMsgs, keysCandidates, charBase):
         key = self._getKey(keysCandidates)
 
+        self._printEmptyLine()
         self._printKeysCounts(keysCandidates)
         self._printIndex(key)
         self._printSecretMsgs(encMsgs, key, charBase)
@@ -232,8 +233,11 @@ class ResultView:
         key = [k[0] if k else None for k in keysCandidates]
         return key
 
+    def _printEmptyLine(self):
+        print('\n')
+
     def _printKeysCounts(self, keysCandidates):
-        print('[*] Keys counts  : ' + ''.join(['*' if len(keys) >= 10 else str(len(keys)) for keys in keysCandidates]))
+        print('[*] Keys counts: ' + ''.join(['*' if len(keys) >= 10 else str(len(keys)) for keys in keysCandidates]))
 
     def _printSecretMsgs(self, encMsgs, key, charBase):
         for num, encMsg in enumerate(encMsgs):
@@ -243,16 +247,16 @@ class ResultView:
                     output += chr(c ^ k)
                 else:
                     output += '_'
-            space = '  '
+            space = '.....'
             if num >= 10:
-                space = ' '
-            print('[*] Secret msg' + space + str(num) + ': ' + output)
+                space = '....'
+            print('[*] Plain' + space + str(num) + ': ' + output)
 
     def _printIndex(self, key):
         output = ''
         for i in xrange(len(key)):
             output += str(i % 10)
-        print('[+] Index        : ' + output)
+        print('[+] Index......: ' + output)
 
     def _printSecretKey(self, key, charBase):
         result = ''
@@ -264,23 +268,22 @@ class ResultView:
             else:
                 result += chr(k)
 
-        print('[*] Secret key   : ' + result)
+        print('[*] Key (str)..: ' + result)
 
 
-def crackStream(encMsg):
+def crackStream(encMsg, maxKeyLength=120):
     print len(encMsg)
     print encMsg
 
-    dh = {}
+    hd = {}
 
-    for keyLength in range(2, 120):
-        dh[keyLength] = hammingDistance(encMsg, keyLength)
+    for keyLength in range(2, maxKeyLength):
+        hd[keyLength] = hammingDistance(encMsg, keyLength)
 
-        print 'keyLength(' + str(keyLength) + '), HD: ' + str(dh[keyLength])
-
-    sortedTab = sorted(dh.items(), key=operator.itemgetter(1), reverse=True)
+    sortedTab = sorted(hd.items(), key=operator.itemgetter(1), reverse=True)
+    print 'Hamming distance from worst to best:'
     for k, v in sortedTab:
-        print('[i] ' + str(k) + ': ' + str(v))
+        print('[+] Length [' + str(k) + '] : ' + str(v))
 
     # print 'DH ' + str(min_dh)
     # print 'KL ' + str(kl_dh)
