@@ -6,7 +6,11 @@
 Knowledge base:
 http://crypto.stackexchange.com/questions/59/taking-advantage-of-one-time-pad-key-reuse
 http://www.data-compression.com/english.html
+
+Hamming distance:
 https://picoctf.com/crypto_mats/#multi_byte_xor
+https://en.wikipedia.org/wiki/Hamming_weight
+https://en.wikipedia.org/wiki/Hamming_distance
 
 https://en.wikipedia.org/wiki/Most_common_words_in_English
 https://en.wiktionary.org/wiki/Wiktionary:Frequency_lists
@@ -264,41 +268,15 @@ class ResultView:
 
 
 def crackStream(encMsg):
-    """
-    https://en.wikipedia.org/wiki/Hamming_weight
-    https://en.wikipedia.org/wiki/Hamming_distance
-    """
     print len(encMsg)
     print encMsg
 
-    # kl_dh = None
     dh = {}
 
-    for length in range(2, 120):
-        # print 'len ' + str(length)
+    for keyLength in range(2, 120):
+        dh[keyLength] = hammingDistance(encMsg, keyLength)
 
-        bits = 0
-        for l in range(length):
-            e = encMsg[l::length]
-
-            z1 = e[0::2]
-            z2 = e[1::2]
-
-            bbb = 0
-            for a, b in zip(z1, z2):
-                bbb += bin(a ^ b).count('1')
-
-            bits += (bbb/len(zip(z1, z2)))
-
-
-            # c = e[0]
-            # for cc in e[1:]:
-            #     c ^= cc
-            # bits += bin(c).count('1')
-
-        dh[length] = bits/length
-
-        print 'length(' + str(length) + '), DH: ' + str(dh[length])
+        print 'keyLength(' + str(keyLength) + '), HD: ' + str(dh[keyLength])
 
     sortedTab = sorted(dh.items(), key=operator.itemgetter(1), reverse=True)
     for k, v in sortedTab:
@@ -309,6 +287,7 @@ def crackStream(encMsg):
 
 
 def hammingDistance(encMsg, keyLength):
+    """ Normalized Hamming Distance """
     bits = 0
     block1 = encMsg[:keyLength]
     block2 = encMsg[keyLength:2*keyLength]
