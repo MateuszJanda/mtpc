@@ -208,8 +208,8 @@ class EncDataAnalyzer:
 
 
 class FreqMatcher:
-    def __init__(self, freqTab, delta):
-        self._freqTab = freqTab
+    def __init__(self, langStats, delta):
+        self._freqTab = LettersDistributor.distribution(langStats)
         self._delta = delta
 
     def match(self, xorFreq):
@@ -307,11 +307,9 @@ def hammingDistance(encMsg, keyLength):
     return bits / keyLength
 
 
-def crackBlocks(encMsgs):
-    freqTab = LettersDistributor.distribution(ENGLISH_LETTERS)
-    msgBytesMatcher = FreqMatcher(freqTab, delta=0.3).match
+def crackBlocks(encMsgs, langStats=ENGLISH_LETTERS, charBase=(string.letters+' _{}')):
+    msgBytesMatcher = FreqMatcher(langStats, delta=0.3).match
 
-    charBase = string.letters + ' '
     cracker = Cracker(charBase, msgBytesMatcher)
     keysCandidates = cracker.run(encMsgs)
 
