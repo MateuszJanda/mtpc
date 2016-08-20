@@ -267,14 +267,14 @@ class ResultView:
         print('[*] Key (str)..: ' + result)
 
 
-def crackStream(encMsg, maxKeyLength=100, checks=5):
+def crackStream(encMsg, langStats=ENGLISH_LETTERS, charBase=(string.letters+' _{}'), maxKeyLength=100, checks=5):
     khd = kyeLengthsProposals(encMsg, maxKeyLength)
 
     for n in range(checks):
         keyLength, _ = khd[n]
         encMsgChunks = [encMsg[i:keyLength+i] for i in range(0, len(encMsg), keyLength)]
         print('\n[+] Check for key length: ' + str(keyLength))
-        crackBlocks(encMsgChunks)
+        crackBlocks(encMsgChunks, langStats, charBase)
 
 
 def kyeLengthsProposals(encMsg, maxKeyLength):
