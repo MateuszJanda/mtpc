@@ -101,9 +101,10 @@ class Cracker:
         return keys
 
     def _getKeyBytes(self, encData):
-        keyCombinations = [self._predictKeyFotTwoEncMsgs(enc1, enc2, encData.xorsFreqs)
-                                for pos, enc1 in enumerate(encData.encMsgs)
-                                    for enc2 in encData.encMsgs[pos+1:]]
+        keyCombinations = []
+        for pos, enc1 in enumerate(encData.encMsgs):
+            for enc2 in encData.encMsgs[pos + 1:]:
+                keyCombinations.append(self._predictKeyFotTwoEncMsgs(enc1, enc2, encData.xorsFreqs))
 
         keys = self._mergeKeyBytesPerPos(keyCombinations)
         return keys
