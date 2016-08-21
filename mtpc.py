@@ -268,7 +268,7 @@ class ResultView:
 
 
 def crackStream(encMsg, langStats=ENGLISH_LETTERS, charBase=(string.letters+' _{}'), maxKeyLength=100, checks=5):
-    khd = kyeLengthsProposals(encMsg, maxKeyLength)
+    khd = keyLengthsProposals(encMsg, maxKeyLength)
 
     for n in range(checks):
         keyLength, _ = khd[n]
@@ -277,7 +277,7 @@ def crackStream(encMsg, langStats=ENGLISH_LETTERS, charBase=(string.letters+' _{
         crackBlocks(encMsgChunks, langStats, charBase)
 
 
-def kyeLengthsProposals(encMsg, maxKeyLength):
+def keyLengthsProposals(encMsg, maxKeyLength):
     keysHD = {}
 
     for keyLength in range(2, maxKeyLength):
