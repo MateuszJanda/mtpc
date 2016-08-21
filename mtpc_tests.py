@@ -24,8 +24,7 @@ class TestCracker(unittest.TestCase):
             'a': 1,
         }
         charBase = 'a'
-        freqTab = mtpc.LettersDistributor.distribution(lettersDist)
-        matcher = mtpc.FreqMatcher(freqTab, delta=0.15).match
+        matcher = mtpc.FreqMatcher(lettersDist, delta=0.15).match
         c = mtpc.Cracker(charBase, matcher)
 
         encMsgs = [
@@ -42,8 +41,7 @@ class TestCracker(unittest.TestCase):
             'b': 0.25
         }
         charBase = 'ab'
-        freqTab = mtpc.LettersDistributor.distribution(lettersDist)
-        matcher = mtpc.FreqMatcher(freqTab, delta=0.15).match
+        matcher = mtpc.FreqMatcher(lettersDist, delta=0.15).match
         c = mtpc.Cracker(charBase, matcher)
 
         encMsgs = [
@@ -60,8 +58,7 @@ class TestCracker(unittest.TestCase):
             'b': 0.75
         }
         charBase = 'ab'
-        freqTab = mtpc.LettersDistributor.distribution(lettersDist)
-        matcher = mtpc.FreqMatcher(freqTab, delta=0.15).match
+        matcher = mtpc.FreqMatcher(lettersDist, delta=0.15).match
         c = mtpc.Cracker(charBase, matcher)
 
         encMsgs = [
@@ -78,8 +75,7 @@ class TestCracker(unittest.TestCase):
             'b': 0.25
         }
         charBase = 'ab'
-        freqTab = mtpc.LettersDistributor.distribution(lettersDist)
-        matcher = mtpc.FreqMatcher(freqTab, delta=0.15).match
+        matcher = mtpc.FreqMatcher(lettersDist, delta=0.15).match
         c = mtpc.Cracker(charBase, matcher)
 
         encMsgs = [
@@ -99,8 +95,7 @@ class TestCracker(unittest.TestCase):
             'b': 0.25
         }
         charBase = 'abc'
-        freqTab = mtpc.LettersDistributor.distribution(lettersDist)
-        matcher = mtpc.FreqMatcher(freqTab, delta=0.51).match
+        matcher = mtpc.FreqMatcher(lettersDist, delta=0.51).match
         c = mtpc.Cracker(charBase, matcher)
 
         encMsgs = [
@@ -121,8 +116,7 @@ class TestCracker(unittest.TestCase):
             'c': 0.1
         }
         charBase = 'abc'
-        freqTab = mtpc.LettersDistributor.distribution(lettersDist)
-        matcher = mtpc.FreqMatcher(freqTab, delta=0.15).match
+        matcher = mtpc.FreqMatcher(lettersDist, delta=0.15).match
         c = mtpc.Cracker(charBase, matcher)
 
         encMsgs = [
