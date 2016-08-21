@@ -226,8 +226,9 @@ class ResultView:
 
         self._printKeysCounts(keysCandidates)
         self._printIndex(key)
-        self._printSecretMsgs(encMsgs, key, charBase)
-        self._printSecretKey(key, charBase)
+        self._printSecretMsgs(encMsgs, key)
+        self._printSecretKeyStr(key, charBase)
+        self._printSecretKeyHex(key)
 
     def _getKey(self, keysCandidates):
         key = [k[0] if k else None for k in keysCandidates]
@@ -236,7 +237,7 @@ class ResultView:
     def _printKeysCounts(self, keysCandidates):
         print('[*] Keys counts: ' + ''.join(['*' if len(keys) >= 10 else str(len(keys)) for keys in keysCandidates]))
 
-    def _printSecretMsgs(self, encMsgs, key, charBase):
+    def _printSecretMsgs(self, encMsgs, key):
         for num, encMsg in enumerate(encMsgs):
             output = ''
             for c, k in zip(encMsg, key):
@@ -255,7 +256,7 @@ class ResultView:
             output += str(i % 10)
         print('[*] Index......: ' + output)
 
-    def _printSecretKey(self, key, charBase):
+    def _printSecretKeyStr(self, key, charBase):
         result = ''
         for k in key:
             if k is None:
@@ -266,6 +267,16 @@ class ResultView:
                 result += chr(k)
 
         print('[*] Key (str)..: ' + result)
+
+    def _printSecretKeyHex(self, key):
+        result = ''
+        for k in key:
+            if k is None:
+                result += '__'
+            else:
+                result += hex(k)[2:]
+
+        print('[*] Key (hex)..: ' + result)
 
 
 def crackStream(encMsg, langStats=ENGLISH_LETTERS, charBase=(string.letters+' _{}'), maxKeyLength=100, checks=5):
