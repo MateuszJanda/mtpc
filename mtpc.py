@@ -92,31 +92,32 @@ class Cracker:
     def __init__(self, charBase, msgBytesMatcher):
         self._analyzer = EncDataAnalyzer()
         self._charBase = charBase
-        self._matchMsgBytesByFreq = msgBytesMatcher
+        self._msgBytesMatcher = msgBytesMatcher
 
     def run(self, encMsgs):
         encData = self._analyzer.count(encMsgs)
-        keys = self._getKeyBytes(encData)
+        self._msgBytesMatcher.setXorsFreqs(encData.xorsFreqs)
+        keys = self._getKeyBytes(encData.encMsgs)
         keys = self._filterKeys(encData, keys)
         return keys
 
-    def _getKeyBytes(self, encData):
+    def _getKeyBytes(self, encMsgs):
         keyCombinations = []
-        for pos, enc1 in enumerate(encData.encMsgs):
-            for enc2 in encData.encMsgs[pos + 1:]:
-                keyCombinations.append(self._predictKeyFotTwoEncMsgs(enc1, enc2, encData.xorsFreqs))
+        for pos, enc1 in enumerate(encMsgs):
+            for enc2 in encMsgs[pos + 1:]:
+                keyCombinations.append(self._predictKeyFotTwoEncMsgs(enc1, enc2))
 
         keys = self._mergeKeyBytesPerPos(keyCombinations)
         return keys
 
-    def _predictKeyFotTwoEncMsgs(self, enc1, enc2, xorsFreqs):
+    def _predictKeyFotTwoEncMsgs(self, enc1, enc2):
         keys = []
         for c1, c2 in zip(enc1, enc2):
             xorResult = c1 ^ c2
             if xorResult == 0:
                 keys.append(set())
             else:
-                msgBytes = self._matchMsgBytesByFreq(xorsFreqs[xorResult])
+                msgBytes = self._msgBytesMatcher.match(xorResult)
                 keys.append(self._matchKeyBytesByMsgBytes(c1, c2, msgBytes))
 
         return keys
@@ -212,10 +213,15 @@ class FreqMatcher:
     def __init__(self, langStats, delta):
         self._freqTab = LettersDistributor.distribution(langStats)
         self._delta = delta
+        self._xorsFreqs = None  # Must be set by setXorsFreqs()
 
-    def match(self, xorFreq):
+    def setXorsFreqs(self, xorsFreqs):
+        self._xorsFreqs = xorsFreqs
+
+    def match(self, xoredBytes):
+        freq = self._xorsFreqs[xoredBytes]
         probLetters = [letters for letters, f in self._freqTab.items()
-                       if (f - self._delta) < xorFreq < (f + self._delta)]
+                       if (f - self._delta) < freq < (f + self._delta)]
         uniqueLetters = set([ord(l) for l in itertools.chain(*probLetters)])
         return uniqueLetters
 
@@ -223,8 +229,12 @@ class FreqMatcher:
 class FreqOrderMatcher:
     def __init__(self, langStats):
         self._freqTab = LettersDistributor.distribution(langStats)
+        self._xorsFreqs = None  # Must be set by setXorsFreqs()
 
-    def match(self, xorFreq):
+    def setXorsFreqs(self, xorsFreqs):
+        self._xorsFreqs = xorsFreqs
+
+    def match(self, xoredBytes):
         probLetters = [letters for letters, f in self._freqTab.items()
                        if (f - self._delta) < xorFreq < (f + self._delta)]
         uniqueLetters = set([ord(l) for l in itertools.chain(*probLetters)])
@@ -331,7 +341,8 @@ def hammingDistance(encMsg, keyLength):
 
 
 def crackBlocks(encMsgs, langStats=ENGLISH_LETTERS, charBase=(string.letters+' _{}')):
-    msgBytesMatcher = FreqMatcher(langStats, delta=0.3).match
+    msgBytesMatcher = FreqMatcher(langStats, delta=0.3)
+    # msgBytesMatcher = FreqOrderMatcher(langStats)
 
     cracker = Cracker(charBase, msgBytesMatcher)
     keysCandidates = cracker.run(encMsgs)

@@ -24,7 +24,7 @@ class TestCracker(unittest.TestCase):
             'a': 1,
         }
         charBase = 'a'
-        matcher = mtpc.FreqMatcher(lettersDist, delta=0.15).match
+        matcher = mtpc.FreqMatcher(lettersDist, delta=0.15)
         c = mtpc.Cracker(charBase, matcher)
 
         encMsgs = [
@@ -41,7 +41,7 @@ class TestCracker(unittest.TestCase):
             'b': 0.25
         }
         charBase = 'ab'
-        matcher = mtpc.FreqMatcher(lettersDist, delta=0.15).match
+        matcher = mtpc.FreqMatcher(lettersDist, delta=0.15)
         c = mtpc.Cracker(charBase, matcher)
 
         encMsgs = [
@@ -58,7 +58,7 @@ class TestCracker(unittest.TestCase):
             'b': 0.75
         }
         charBase = 'ab'
-        matcher = mtpc.FreqMatcher(lettersDist, delta=0.15).match
+        matcher = mtpc.FreqMatcher(lettersDist, delta=0.15)
         c = mtpc.Cracker(charBase, matcher)
 
         encMsgs = [
@@ -75,7 +75,7 @@ class TestCracker(unittest.TestCase):
             'b': 0.25
         }
         charBase = 'ab'
-        matcher = mtpc.FreqMatcher(lettersDist, delta=0.15).match
+        matcher = mtpc.FreqMatcher(lettersDist, delta=0.15)
         c = mtpc.Cracker(charBase, matcher)
 
         encMsgs = [
@@ -95,7 +95,7 @@ class TestCracker(unittest.TestCase):
             'b': 0.25
         }
         charBase = 'abc'
-        matcher = mtpc.FreqMatcher(lettersDist, delta=0.51).match
+        matcher = mtpc.FreqMatcher(lettersDist, delta=0.51)
         c = mtpc.Cracker(charBase, matcher)
 
         encMsgs = [
@@ -116,7 +116,7 @@ class TestCracker(unittest.TestCase):
             'c': 0.1
         }
         charBase = 'abc'
-        matcher = mtpc.FreqMatcher(lettersDist, delta=0.15).match
+        matcher = mtpc.FreqMatcher(lettersDist, delta=0.15)
         c = mtpc.Cracker(charBase, matcher)
 
         encMsgs = [
