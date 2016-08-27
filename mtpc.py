@@ -220,6 +220,17 @@ class FreqMatcher:
         return uniqueLetters
 
 
+class FreqOrderMatcher:
+    def __init__(self, langStats):
+        self._freqTab = LettersDistributor.distribution(langStats)
+
+    def match(self, xorFreq):
+        probLetters = [letters for letters, f in self._freqTab.items()
+                       if (f - self._delta) < xorFreq < (f + self._delta)]
+        uniqueLetters = set([ord(l) for l in itertools.chain(*probLetters)])
+        return uniqueLetters
+
+
 class ResultView:
     def show(self, encMsgs, keysCandidates, charBase):
         key = self._getKey(keysCandidates)
