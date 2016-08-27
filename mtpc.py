@@ -213,7 +213,8 @@ class FreqMatcher:
     def __init__(self, langStats, delta):
         self._freqTab = LettersDistributor.distribution(langStats)
         self._delta = delta
-        self._xorsFreqs = None  # Must be set by setXorsFreqs()
+        # Must be set by setXorsFreqs()
+        self._xorsFreqs = None
 
     def setXorsFreqs(self, xorsFreqs):
         self._xorsFreqs = xorsFreqs
@@ -229,15 +230,19 @@ class FreqMatcher:
 class FreqOrderMatcher:
     def __init__(self, langStats):
         self._freqTab = LettersDistributor.distribution(langStats)
-        self._xorsFreqs = None  # Must be set by setXorsFreqs()
+        # Must be set by setXorsFreqs()
+        self._orderdFreqs = None
 
     def setXorsFreqs(self, xorsFreqs):
-        self._xorsFreqs = xorsFreqs
+        sorrtedXorsFreq = sorted(xorsFreqs.items(), key=operator.itemgetter(1), reverse=True)
+        sortedLangFreqs = sorted(self._freqTab.items(), key=operator.itemgetter(1), reverse=True)
+
+        self._orderdFreqs = {}
+        for z in zip(sorrtedXorsFreq, sortedLangFreqs):
+            self._orderdFreqs[z[0][0]] = z[1][0]
 
     def match(self, xoredBytes):
-        probLetters = [letters for letters, f in self._freqTab.items()
-                       if (f - self._delta) < xorFreq < (f + self._delta)]
-        uniqueLetters = set([ord(l) for l in itertools.chain(*probLetters)])
+        uniqueLetters = set([ord(l) for l in self._orderdFreqs[xoredBytes]])
         return uniqueLetters
 
 
@@ -341,8 +346,8 @@ def hammingDistance(encMsg, keyLength):
 
 
 def crackBlocks(encMsgs, langStats=ENGLISH_LETTERS, charBase=(string.letters+' _{}')):
-    msgBytesMatcher = FreqMatcher(langStats, delta=0.3)
-    # msgBytesMatcher = FreqOrderMatcher(langStats)
+    # msgBytesMatcher = FreqMatcher(langStats, delta=0.3)
+    msgBytesMatcher = FreqOrderMatcher(langStats)
 
     cracker = Cracker(charBase, msgBytesMatcher)
     keysCandidates = cracker.run(encMsgs)
