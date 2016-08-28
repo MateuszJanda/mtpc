@@ -250,6 +250,7 @@ class ResultView:
     def show(self, encMsgs, keysCandidates, charBase):
         key = self._getKey(keysCandidates)
 
+        self._printNumberOfCombinations(keysCandidates)
         self._printKeysCounts(keysCandidates)
         self._printIndex(key)
         self._printSecretMsgs(encMsgs, key)
@@ -259,6 +260,12 @@ class ResultView:
     def _getKey(self, keysCandidates):
         key = [k[0] if k else None for k in keysCandidates]
         return key
+
+    def _printNumberOfCombinations(self, keysCandidates):
+        numberOfCombinations = 1
+        for keys in keysCandidates:
+            numberOfCombinations *= len(keys)
+        print('[+] Number of combinations: ' + str(numberOfCombinations))
 
     def _printKeysCounts(self, keysCandidates):
         print('[*] Keys counts: ' + ''.join(['*' if len(keys) >= 10 else str(len(keys)) for keys in keysCandidates]))
