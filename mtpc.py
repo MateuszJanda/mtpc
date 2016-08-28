@@ -350,6 +350,7 @@ def keyLenHammingDist(encMsg, maxKeyLength):
 
 
 def keyLenHighBits(encMsg, maxKeyLength):
+    """ Works only when key contain high bits (key is not build from printable characters) """
     HIGH_BIT_MASK = 0x80
     result = []
     for keyLength in range(2, maxKeyLength+1):
