@@ -335,7 +335,7 @@ def crackStream(encMsg, method='spaces', keyLenMethod='high-bits', langStats=ENG
 def keyLenHammingDist(encMsg, maxKeyLength):
     keysHD = {}
 
-    for keyLength in range(2, maxKeyLength):
+    for keyLength in range(2, maxKeyLength+1):
         keysHD[keyLength] = hammingDistance(encMsg, keyLength)
 
     sortedTab = sorted(keysHD.items(), key=operator.itemgetter(1), reverse=True)
@@ -352,7 +352,7 @@ def keyLenHammingDist(encMsg, maxKeyLength):
 def keyLenHighBits(encMsg, maxKeyLength):
     HIGH_BIT_MASK = 0x80
     result = []
-    for keyLength in range(2, maxKeyLength):
+    for keyLength in range(2, maxKeyLength+1):
         goodKey = True
         for ix in range(keyLength):
             bytesPerPos = encMsg[ix::keyLength]
