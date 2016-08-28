@@ -438,6 +438,3 @@ def findKeyByMostCommonChar(encMsg, mostCommonCh=' '):
         keysCandidates.append([counters[ix].most_common(1)[0][0] ^ mostCommonByte])
 
     return keysCandidates
-
-
-
