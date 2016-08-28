@@ -305,23 +305,31 @@ class ResultView:
         print('[*] Key (hex)..: ' + result)
 
 
-def crackStream(encMsg, langStats=ENGLISH_LETTERS, charBase=(string.letters+' _{}'), maxKeyLength=100, checks=5):
+def crackStream(encMsg, method='spaces', keyLenMethod='high-bits', langStats=ENGLISH_LETTERS,
+                charBase=(string.letters+' _{}'), maxKeyLength=100, checks=5):
     """
     Crack byte stream, where key was reused more than one (key length is shorter than stream length)
     :param encMsg: each character should be encoded as int
+    :param method:
+    :param keyLenMethod:
     :param langStats:
     :param charBase:
     :param maxKeyLength:
     :param checks:
     :return:
     """
-    khd = keyLengthsProposals(encMsg, maxKeyLength)
+    if keyLenMethod == 'hamming':
+        khd = keyLengthsProposals(encMsg, maxKeyLength)
+    elif keyLenMethod == 'high-bits':
+        khd = kkk(encMsg, maxKeyLength)
+    else:
+        raise Exception
 
-    for n in range(checks):
+    for n in range(min(len(khd), checks)):
         keyLength, _ = khd[n]
         encMsgChunks = [encMsg[i:keyLength+i] for i in range(0, len(encMsg), keyLength)]
         print('\n[+] Check for key length: ' + str(keyLength))
-        crackBlocks(encMsgChunks, langStats, charBase)
+        crackBlocks(encMsgChunks, method, langStats, charBase)
 
 
 def keyLengthsProposals(encMsg, maxKeyLength):
@@ -341,6 +349,31 @@ def keyLengthsProposals(encMsg, maxKeyLength):
     return result
 
 
+def kkk(encMsg, maxKeyLength):
+    result = []
+    for keyLen in range(2, maxKeyLength):
+        goodKey = True
+        for ix in range(keyLen):
+            ppp = encMsg[ix::keyLen]
+
+            marker = ppp[0] & 0x80
+            for p in ppp:
+                if p ^ 0x80 != marker:
+                    goodKey = False
+                    break
+            if not goodKey:
+                break
+
+        if goodKey:
+
+            result.append(keyLen)
+
+    return result
+
+
+
+
+
 def hammingDistance(encMsg, keyLength):
     """ Normalized Hamming Distance """
     bits = 0
@@ -354,12 +387,19 @@ def hammingDistance(encMsg, keyLength):
     return bits / keyLength
 
 
-def crackBlocks(encMsgs, langStats=ENGLISH_LETTERS, charBase=(string.letters+' _{}')):
-    # msgBytesMatcher = FreqMatcher(langStats, delta=0.3)
-    msgBytesMatcher = FreqOrderMatcher(langStats)
-
-    cracker = Cracker(charBase, msgBytesMatcher)
-    keysCandidates = cracker.run(encMsgs)
+def crackBlocks(encMsgs, method='spaces', langStats=ENGLISH_LETTERS, charBase=(string.letters+' _{}')):
+    if method == 'best-freq':
+        msgBytesMatcher = FreqMatcher(langStats, delta=0.3)
+        cracker = Cracker(charBase, msgBytesMatcher)
+        keysCandidates = cracker.run(encMsgs)
+    elif method == 'first-order-freq':
+        msgBytesMatcher = FreqOrderMatcher(langStats)
+        cracker = Cracker(charBase, msgBytesMatcher)
+        keysCandidates = cracker.run(encMsgs)
+    elif method == 'spaces':
+        keysCandidates = crackBlock2(encMsgs)
+    else:
+        raise Exception
 
     v = ResultView()
     v.show(encMsgs, keysCandidates, charBase)
