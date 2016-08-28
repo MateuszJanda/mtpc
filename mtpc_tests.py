@@ -162,21 +162,20 @@ class TestCrackStream(unittest.TestCase):
         self.assertAlmostEqual(mtpc.hammingDistance(e, 3), 3.67, delta=0.01)
         self.assertAlmostEqual(mtpc.hammingDistance(e, 6), 3.83, delta=0.01)
 
-    def test_kkk(self):
+    def test_keyLenHighBits(self):
         encMsg = encryptOtpInt(msg='aababcaa', key=[0x00, 0xff, 0xff, 0x00, 0xff, 0xff, 0x00, 0xff])
-        self.assertItemsEqual(mtpc.kkk(encMsg, maxKeyLength=4), [3])
+        self.assertItemsEqual(mtpc.keyLenHighBits(encMsg, maxKeyLength=4), [3])
 
 
 class TestCrackBlock(unittest.TestCase):
-    def test_crackBlock2(self):
+    def test_findKeyByMostCommonChar(self):
         encMsgs = [
             encryptOtp(msg=' a a', key='vxyz'),
             encryptOtp(msg='  ab', key='vxyz'),
             encryptOtp(msg='b ab', key='vxyz')
         ]
 
-        keysCandidates = mtpc.crackBlock2(encMsgs)
-
+        keysCandidates = mtpc.findKeyByMostCommonChar(encMsgs)
         self.assertItemsEqual(keysCandidates, [[ord('v')],
                                                [ord('x')],
                                                [ord('a') ^ ord('y') ^ ord(' ')],

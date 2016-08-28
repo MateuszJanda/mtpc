@@ -319,28 +319,27 @@ def crackStream(encMsg, method='spaces', keyLenMethod='high-bits', langStats=ENG
     :return:
     """
     if keyLenMethod == 'hamming':
-        khd = keyLengthsProposals(encMsg, maxKeyLength)
+        proposedKeyLengths = keyLenHammingDist(encMsg, maxKeyLength)
     elif keyLenMethod == 'high-bits':
-        khd = kkk(encMsg, maxKeyLength)
-        print khd
+        proposedKeyLengths = keyLenHighBits(encMsg, maxKeyLength)
     else:
         raise Exception
 
-    for n in range(min(len(khd), checks)):
-        keyLength = khd[n]
+    for n in range(min(len(proposedKeyLengths), checks)):
+        keyLength = proposedKeyLengths[n]
         encMsgChunks = [encMsg[i:keyLength+i] for i in range(0, len(encMsg), keyLength)]
         print('\n[+] Check for key length: ' + str(keyLength))
         crackBlocks(encMsgChunks, method, langStats, charBase)
 
 
-def keyLengthsProposals(encMsg, maxKeyLength):
+def keyLenHammingDist(encMsg, maxKeyLength):
     keysHD = {}
 
     for keyLength in range(2, maxKeyLength):
         keysHD[keyLength] = hammingDistance(encMsg, keyLength)
 
     sortedTab = sorted(keysHD.items(), key=operator.itemgetter(1), reverse=True)
-    print 'Hamming distance from worst to best:'
+    print('Hamming distance from worst to best:')
     result = []
     for k, hd in sortedTab:
         print('[+] Length [' + str(k) + '] : ' + str(hd))
@@ -350,23 +349,24 @@ def keyLengthsProposals(encMsg, maxKeyLength):
     return result
 
 
-def kkk(encMsg, maxKeyLength):
+def keyLenHighBits(encMsg, maxKeyLength):
+    HIGH_BIT_MASK = 0x80
     result = []
-    for keyLen in range(2, maxKeyLength):
+    for keyLength in range(2, maxKeyLength):
         goodKey = True
-        for ix in range(keyLen):
-            ppp = encMsg[ix::keyLen]
+        for ix in range(keyLength):
+            bytesPerPos = encMsg[ix::keyLength]
 
-            marker = ppp[0] & 0x80
-            for p in ppp:
-                if p & 0x80 != marker:
+            searchedBit = bytesPerPos[0] & HIGH_BIT_MASK
+            for b in bytesPerPos:
+                if b & HIGH_BIT_MASK != searchedBit:
                     goodKey = False
                     break
             if not goodKey:
                 break
 
         if goodKey:
-            result.append(keyLen)
+            result.append(keyLength)
 
     return result
 
@@ -394,7 +394,7 @@ def crackBlocks(encMsgs, method='spaces', langStats=ENGLISH_LETTERS, charBase=(s
         cracker = Cracker(charBase, msgBytesMatcher)
         keysCandidates = cracker.run(encMsgs)
     elif method == 'spaces':
-        keysCandidates = crackBlock2(encMsgs)
+        keysCandidates = findKeyByMostCommonChar(encMsgs)
     else:
         raise Exception
 
@@ -402,8 +402,8 @@ def crackBlocks(encMsgs, method='spaces', langStats=ENGLISH_LETTERS, charBase=(s
     v.show(encMsgs, keysCandidates, charBase)
 
 
-def crackBlock2(encMsg):
-    """ Find spaces """
+def findKeyByMostCommonChar(encMsg, mostCommonCh=' '):
+    """ Find key by most common character (be default space) """
     counters = []
     for e in encMsg:
         for ix in range(len(e)):
@@ -411,10 +411,10 @@ def crackBlock2(encMsg):
                 counters.append(Counter())
             counters[ix][e[ix]] += 1
 
-    SPACE_BYTE = 0x20
+    mostCommonByte = ord(mostCommonCh)
     keysCandidates = []
     for ix in range(len(counters)):
-        keysCandidates.append([counters[ix].most_common(1)[0][0] ^ SPACE_BYTE])
+        keysCandidates.append([counters[ix].most_common(1)[0][0] ^ mostCommonByte])
 
     return keysCandidates
 
