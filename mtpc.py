@@ -306,6 +306,15 @@ class ResultView:
 
 
 def crackStream(encMsg, langStats=ENGLISH_LETTERS, charBase=(string.letters+' _{}'), maxKeyLength=100, checks=5):
+    """
+    Crack byte stream, where key was reused more than one (key length is shorter than stream length)
+    :param encMsg: each character should be encoded as int
+    :param langStats:
+    :param charBase:
+    :param maxKeyLength:
+    :param checks:
+    :return:
+    """
     khd = keyLengthsProposals(encMsg, maxKeyLength)
 
     for n in range(checks):
@@ -354,4 +363,23 @@ def crackBlocks(encMsgs, langStats=ENGLISH_LETTERS, charBase=(string.letters+' _
 
     v = ResultView()
     v.show(encMsgs, keysCandidates, charBase)
+
+
+def crackBlock2(encMsg):
+    """ Find spaces """
+    counters = []
+    for e in encMsg:
+        for ix in range(len(e)):
+            if ix == len(counters):
+                counters.append(Counter())
+            counters[ix][e[ix]] += 1
+
+    SPACE_BYTE = 0x20
+    keysCandidates = []
+    for ix in range(len(counters)):
+        keysCandidates.append([counters[ix].most_common(1)[0][0] ^ SPACE_BYTE])
+
+    return keysCandidates
+
+
 

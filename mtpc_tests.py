@@ -155,8 +155,24 @@ class TestCrackStream(unittest.TestCase):
         self.assertAlmostEqual(mtpc.hammingDistance(e, 6), 3.83, delta=0.01)
 
 
+class TestCrackBlock(unittest.TestCase):
+    def test_crackBlock2(self):
+        encMsgs = [
+            encryptOtp(msg=' a a', key='vxyz'),
+            encryptOtp(msg='  ab', key='vxyz'),
+            encryptOtp(msg='b ab', key='vxyz')
+        ]
+
+        keysCandidates = mtpc.crackBlock2(encMsgs)
+
+        self.assertItemsEqual(keysCandidates, [[ord('v')],
+                                               [ord('x')],
+                                               [ord('a') ^ ord('y') ^ ord(' ')],
+                                               [ord('b') ^ ord('z') ^ ord(' ')]])
+
+
 class TestLettersDistributor(unittest.TestCase):
-    def test(self):
+    def test_distribution(self):
         d = mtpc.LettersDistributor.distribution()
         freqSum = sum([f for f in d.values()])
         self.assertAlmostEqual(freqSum, 1.0)
