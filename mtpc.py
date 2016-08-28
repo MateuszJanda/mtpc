@@ -306,22 +306,21 @@ class ResultView:
 
 
 def crackStream(encMsg, method='spaces', keyLenMethod='high-bits', langStats=ENGLISH_LETTERS,
-                charBase=(string.letters+' _{}'), maxKeyLength=100, checks=5):
+                charBase=(string.letters+' _{}'), keyLengthRange=(2, 100), checks=5):
     """
     Crack byte stream, where key was reused more than one (key length is shorter than stream length)
     :param encMsg: each character should be encoded as int
-    :param method:
-    :param keyLenMethod:
-    :param langStats:
-    :param charBase:
-    :param maxKeyLength:
-    :param checks:
-    :return:
+    :param method: cracking method: 'best-freq', 'first-order-freq', 'spaces'
+    :param keyLenMethod: method to determine key length: 'hamming', 'high-bits'
+    :param langStats: character frequencies distribution in specific language: default ENGLISH_LETTERS
+    :param charBase: expected characters in output message
+    :param keyLengthRange: key length ranges to check
+    :param checks: number of best result to show
     """
     if keyLenMethod == 'hamming':
-        proposedKeyLengths = keyLenHammingDist(encMsg, maxKeyLength)
+        proposedKeyLengths = keyLenHammingDist(encMsg, keyLengthRange)
     elif keyLenMethod == 'high-bits':
-        proposedKeyLengths = keyLenHighBits(encMsg, maxKeyLength)
+        proposedKeyLengths = keyLenHighBits(encMsg, keyLengthRange)
     else:
         raise Exception
 
@@ -332,10 +331,10 @@ def crackStream(encMsg, method='spaces', keyLenMethod='high-bits', langStats=ENG
         crackBlocks(encMsgChunks, method, langStats, charBase)
 
 
-def keyLenHammingDist(encMsg, maxKeyLength):
+def keyLenHammingDist(encMsg, keyLengthRange):
     keysHD = {}
 
-    for keyLength in range(2, maxKeyLength+1):
+    for keyLength in range(*keyLengthRange):
         keysHD[keyLength] = hammingDistance(encMsg, keyLength)
 
     sortedTab = sorted(keysHD.items(), key=operator.itemgetter(1), reverse=True)
@@ -349,11 +348,11 @@ def keyLenHammingDist(encMsg, maxKeyLength):
     return result
 
 
-def keyLenHighBits(encMsg, maxKeyLength):
+def keyLenHighBits(encMsg, keyLengthRange):
     """ Works only when key contain high bits (key is not build from printable characters) """
     HIGH_BIT_MASK = 0x80
     result = []
-    for keyLength in range(2, maxKeyLength+1):
+    for keyLength in range(*keyLengthRange):
         goodKey = True
         for ix in range(keyLength):
             bytesPerPos = encMsg[ix::keyLength]
@@ -386,6 +385,13 @@ def hammingDistance(encMsg, keyLength):
 
 
 def crackBlocks(encMsgs, method='spaces', langStats=ENGLISH_LETTERS, charBase=(string.letters+' _{}')):
+    """
+    Crack blocks of bytes stream, where key was reused for each block.
+    :param encMsgs: encoded messages each character should be encoded as int
+    :param method: cracking method: 'best-freq', 'first-order-freq', 'spaces'
+    :param langStats: character frequencies distribution in specific language: default ENGLISH_LETTERS
+    :param charBase: expected characters in output message
+    """
     if method == 'best-freq':
         msgBytesMatcher = FreqMatcher(langStats, delta=0.3)
         cracker = Cracker(charBase, msgBytesMatcher)
