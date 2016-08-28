@@ -145,6 +145,10 @@ class Cracker:
                 if self._testColumn(pos, k, encData.encMsgs):
                     possibleKeys[-1].append(k)
 
+            # If no proposals for this position, replace it by [None] (easier to use be itertools.product)
+            if not possibleKeys[-1]:
+                possibleKeys[-1] = [None]
+
         return possibleKeys
 
     def _testColumn(self, pos, key, encMsgs):
@@ -247,23 +251,23 @@ class FreqOrderMatcher:
 
 
 class ResultView:
-    def show(self, encMsgs, keysCandidates, charBase):
-        key = self._getKey(keysCandidates)
-
+    def show(self, encMsgs, keysCandidates, charBase, checks=1):
         self._printNumberOfCombinations(keysCandidates)
-        self._printKeysCounts(keysCandidates)
-        self._printIndex(key)
-        self._printSecretMsgs(encMsgs, key)
-        self._printSecretKeyStr(key, charBase)
-        self._printSecretKeyHex(key)
-
-    def _getKey(self, keysCandidates):
-        key = [k[0] if k else None for k in keysCandidates]
-        return key
+        for num, key in enumerate(itertools.product(*keysCandidates)):
+            if num >= checks:
+                break
+            self._printKeysCounts(keysCandidates)
+            self._printIndex(key)
+            self._printSecretMsgs(encMsgs, key)
+            self._printSecretKeyStr(key, charBase)
+            self._printSecretKeyHex(key)
+            self._printSeparator()
 
     def _printNumberOfCombinations(self, keysCandidates):
         numberOfCombinations = 1
         for keys in keysCandidates:
+            if len(keys) == 0:
+                continue
             numberOfCombinations *= len(keys)
         print('[+] Number of combinations: ' + str(numberOfCombinations))
 
@@ -310,6 +314,9 @@ class ResultView:
                 result += hex(k)[2:]
 
         print('[*] Key (hex)..: ' + result)
+
+    def _printSeparator(self):
+        print('[+] -----')
 
 
 def crackStream(encMsg, method='spaces', keyLenMethod='high-bits', langStats=ENGLISH_LETTERS,

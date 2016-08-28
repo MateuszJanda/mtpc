@@ -41,7 +41,7 @@ class TestCracker(unittest.TestCase):
         ]
 
         keysCandidates = c.run(encMsgs)
-        self.assertItemsEqual(keysCandidates, [[]])
+        self.assertItemsEqual(keysCandidates, [[None]])
 
     def test_crack_whenTextMathLanguagePattern_returnProposal(self):
         lettersDist = {
@@ -93,9 +93,9 @@ class TestCracker(unittest.TestCase):
 
         keysCandidates = c.run(encMsgs)
         self.assertItemsEqual(keysCandidates, [[ord('a'), ord('b')],
-                                               [],
+                                               [None],
                                                [ord('a'), ord('b')],
-                                               []])
+                                               [None]])
 
     def test_crack_whenCharBaseIsLargerThanKeysInDistributionTable(self):
         lettersDist = {
@@ -113,9 +113,9 @@ class TestCracker(unittest.TestCase):
 
         keysCandidates = c.run(encMsgs)
         self.assertItemsEqual(keysCandidates, [[ord('a'), ord('b')],
-                                               [],
+                                               [None],
                                                [ord('a'), ord('c')],
-                                               []])
+                                               [None]])
 
     def test_crack_whenThreeLettersInDistTable(self):
         lettersDist = {
@@ -136,13 +136,13 @@ class TestCracker(unittest.TestCase):
         self.assertItemsEqual(keysCandidates, [[ord('a'), ord('b')],
                                                [96, ord('b')],
                                                [ord('a'), ord('b')],
-                                               [],
+                                               [None],
                                                [ord('a'), ord('b')],
-                                               [],
+                                               [None],
                                                [ord('a'), ord('b')],
                                                [ord('a'), ord('c')],
-                                               [],
-                                               []])
+                                               [None],
+                                               [None]])
 
 
 class TestCrackStream(unittest.TestCase):
