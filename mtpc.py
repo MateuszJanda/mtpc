@@ -322,11 +322,12 @@ def crackStream(encMsg, method='spaces', keyLenMethod='high-bits', langStats=ENG
         khd = keyLengthsProposals(encMsg, maxKeyLength)
     elif keyLenMethod == 'high-bits':
         khd = kkk(encMsg, maxKeyLength)
+        print khd
     else:
         raise Exception
 
     for n in range(min(len(khd), checks)):
-        keyLength, _ = khd[n]
+        keyLength = khd[n]
         encMsgChunks = [encMsg[i:keyLength+i] for i in range(0, len(encMsg), keyLength)]
         print('\n[+] Check for key length: ' + str(keyLength))
         crackBlocks(encMsgChunks, method, langStats, charBase)
@@ -343,7 +344,7 @@ def keyLengthsProposals(encMsg, maxKeyLength):
     result = []
     for k, hd in sortedTab:
         print('[+] Length [' + str(k) + '] : ' + str(hd))
-        result.append([k, hd])
+        result.append(k)
 
     result.reverse()
     return result
@@ -358,20 +359,16 @@ def kkk(encMsg, maxKeyLength):
 
             marker = ppp[0] & 0x80
             for p in ppp:
-                if p ^ 0x80 != marker:
+                if p & 0x80 != marker:
                     goodKey = False
                     break
             if not goodKey:
                 break
 
         if goodKey:
-
             result.append(keyLen)
 
     return result
-
-
-
 
 
 def hammingDistance(encMsg, keyLength):

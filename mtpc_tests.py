@@ -18,6 +18,14 @@ def encryptOtp(msg, key):
     return result
 
 
+def encryptOtpInt(msg, key):
+    result = []
+    for m, k in zip(msg, key):
+        result.append(ord(m) ^ k)
+
+    return result
+
+
 class TestCracker(unittest.TestCase):
     def test_crack_whenSameLetter_resultIsUnknown(self):
         lettersDist = {
@@ -153,6 +161,10 @@ class TestCrackStream(unittest.TestCase):
         self.assertAlmostEqual(mtpc.hammingDistance(e, 2), 3.5)
         self.assertAlmostEqual(mtpc.hammingDistance(e, 3), 3.67, delta=0.01)
         self.assertAlmostEqual(mtpc.hammingDistance(e, 6), 3.83, delta=0.01)
+
+    def test_kkk(self):
+        encMsg = encryptOtpInt(msg='aababcaa', key=[0x00, 0xff, 0xff, 0x00, 0xff, 0xff, 0x00, 0xff])
+        self.assertItemsEqual(mtpc.kkk(encMsg, maxKeyLength=4), [3])
 
 
 class TestCrackBlock(unittest.TestCase):
