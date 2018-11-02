@@ -10,7 +10,7 @@ from mock import call
 import mtpc
 
 
-def encryptOtp(msg, key):
+def encrypt_otp(msg, key):
     result = []
     for m, k in zip(msg, key):
         result.append(ord(m) ^ ord(k))
@@ -18,7 +18,7 @@ def encryptOtp(msg, key):
     return result
 
 
-def encryptOtpInt(msg, key):
+def encrypt_otp_int(msg, key):
     result = []
     for m, k in zip(msg, key):
         result.append(ord(m) ^ k)
@@ -36,8 +36,8 @@ class TestCracker(unittest.TestCase):
         c = mtpc.Cracker(char_base, matcher)
 
         enc_msgs = [
-            encryptOtp(msg='a', key='a'),
-            encryptOtp(msg='a', key='a')
+            encrypt_otp(msg='a', key='a'),
+            encrypt_otp(msg='a', key='a')
         ]
 
         keys_candidates = c.run(enc_msgs)
@@ -53,8 +53,8 @@ class TestCracker(unittest.TestCase):
         c = mtpc.Cracker(char_base, matcher)
 
         enc_msgs = [
-            encryptOtp(msg='a', key='b'),
-            encryptOtp(msg='b', key='b')
+            encrypt_otp(msg='a', key='b'),
+            encrypt_otp(msg='b', key='b')
         ]
 
         keys_candidates = c.run(enc_msgs)
@@ -70,8 +70,8 @@ class TestCracker(unittest.TestCase):
         c = mtpc.Cracker(char_base, matcher)
 
         enc_msgs = [
-            encryptOtp(msg='a', key='b'),
-            encryptOtp(msg='b', key='b')
+            encrypt_otp(msg='a', key='b'),
+            encrypt_otp(msg='b', key='b')
         ]
 
         keys_candidates = c.run(enc_msgs)
@@ -87,8 +87,8 @@ class TestCracker(unittest.TestCase):
         c = mtpc.Cracker(char_base, matcher)
 
         enc_msgs = [
-            encryptOtp(msg='aaba', key='abaa'),
-            encryptOtp(msg='baaa', key='abaa')
+            encrypt_otp(msg='aaba', key='abaa'),
+            encrypt_otp(msg='baaa', key='abaa')
         ]
 
         keys_candidates = c.run(enc_msgs)
@@ -107,8 +107,8 @@ class TestCracker(unittest.TestCase):
         c = mtpc.Cracker(char_base, matcher)
 
         enc_msgs = [
-            encryptOtp(msg='aaca', key='abaa'),
-            encryptOtp(msg='baaa', key='abaa')
+            encrypt_otp(msg='aaca', key='abaa'),
+            encrypt_otp(msg='baaa', key='abaa')
         ]
 
         keys_candidates = c.run(enc_msgs)
@@ -128,8 +128,8 @@ class TestCracker(unittest.TestCase):
         c = mtpc.Cracker(char_base, matcher)
 
         enc_msgs = [
-            encryptOtp(msg='aababbacaa', key='abaaacaabb'),
-            encryptOtp(msg='bcaaabbaaa', key='abaaacaabb')
+            encrypt_otp(msg='aababbacaa', key='abaaacaabb'),
+            encrypt_otp(msg='bcaaabbaaa', key='abaaacaabb')
         ]
 
         keys_candidates = c.run(enc_msgs)
@@ -163,16 +163,16 @@ class TestCrackStream(unittest.TestCase):
         self.assertAlmostEqual(mtpc.hamming_distance(e, 6), 3.83, delta=0.01)
 
     def test_keyLenHighBits(self):
-        enc_msg = encryptOtpInt(msg='aababcaa', key=[0x00, 0xff, 0xff, 0x00, 0xff, 0xff, 0x00, 0xff])
+        enc_msg = encrypt_otp_int(msg='aababcaa', key=[0x00, 0xff, 0xff, 0x00, 0xff, 0xff, 0x00, 0xff])
         self.assertItemsEqual(mtpc.key_len_high_bits(enc_msg, key_length_range=(1, 4)), [3])
 
 
 class TestCrackBlock(unittest.TestCase):
     def test_findKeyByMostCommonChar(self):
         enc_msgs = [
-            encryptOtp(msg=' a a', key='vxyz'),
-            encryptOtp(msg='  ab', key='vxyz'),
-            encryptOtp(msg='b ab', key='vxyz')
+            encrypt_otp(msg=' a a', key='vxyz'),
+            encrypt_otp(msg='  ab', key='vxyz'),
+            encrypt_otp(msg='b ab', key='vxyz')
         ]
 
         keys_candidates = mtpc.find_key_by_most_common_char(enc_msgs)
@@ -185,8 +185,8 @@ class TestCrackBlock(unittest.TestCase):
 class TestLettersDistributor(unittest.TestCase):
     def test_distribution(self):
         d = mtpc.LettersDistributor.distribution()
-        freqSum = sum([f for f in d.values()])
-        self.assertAlmostEqual(freqSum, 1.0)
+        freq_sum = sum([f for f in d.values()])
+        self.assertAlmostEqual(freq_sum, 1.0)
 
 
 if __name__ == '__main__':

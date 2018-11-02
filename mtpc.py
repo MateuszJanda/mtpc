@@ -83,8 +83,8 @@ class LettersDistributor:
         freq_sum = sum([freq for freq in freq_tab.values()])
         print('[i] Sum \'m1^m2\' probabilities: ' + str(freq_sum * 2))
 
-        countFreqM = sum([f for f in letters_dist.values()])
-        print('[i] Sum \'m\' probabilities:     ' + str(countFreqM))
+        count_freq_m = sum([f for f in letters_dist.values()])
+        print('[i] Sum \'m\' probabilities:     ' + str(count_freq_m))
         print('[i] ------')
 
 
@@ -98,7 +98,7 @@ class Cracker:
         enc_data = self._analyzer.count(enc_msgs)
         self._msg_bytes_matcher.set_xors_freqs(enc_data.xors_freqs)
         keys = self._get_key_bytes(enc_data.enc_msgs)
-        keys = self._filterKeys(enc_data, keys)
+        keys = self._filter_keys(enc_data, keys)
         return keys
 
     def _get_key_bytes(self, enc_msgs):
@@ -107,7 +107,7 @@ class Cracker:
             for enc2 in enc_msgs[pos + 1:]:
                 key_combinations.append(self._predict_key_for_two_enc_msgs(enc1, enc2))
 
-        keys = self._mergeKeyBytesPerPos(key_combinations)
+        keys = self._merge_key_bytes_per_pos(key_combinations)
         return keys
 
     def _predict_key_for_two_enc_msgs(self, enc1, enc2):
@@ -123,11 +123,11 @@ class Cracker:
         return keys
 
     def _match_key_bytes_by_msg_bytes(self, c1, c2, msg_bytes):
-        keyBytes = [c1 ^ m for m in msg_bytes]
-        keyBytes += [c2 ^ m for m in msg_bytes]
-        return set(keyBytes)
+        key_bytes = [c1 ^ m for m in msg_bytes]
+        key_bytes += [c2 ^ m for m in msg_bytes]
+        return set(key_bytes)
 
-    def _mergeKeyBytesPerPos(self, key_combinations):
+    def _merge_key_bytes_per_pos(self, key_combinations):
         possible_keys = []
         for comb in key_combinations:
             for pos, keys in enumerate(comb):
@@ -137,9 +137,9 @@ class Cracker:
 
         return possible_keys
 
-    def _filterKeys(self, enc_data, keysPerPos):
+    def _filter_keys(self, enc_data, keys_per_pos):
         possible_keys = []
-        for pos, keys in enumerate(keysPerPos):
+        for pos, keys in enumerate(keys_per_pos):
             possible_keys.append([])
             for k in keys:
                 if self._test_column(pos, k, enc_data.enc_msgs):
@@ -332,17 +332,17 @@ def crack_stream(enc_msg, method='spaces', key_len_method='high-bits', lang_stat
     :param checks: number of best result to show
     """
     if key_len_method == 'hamming':
-        proposedKeyLengths = key_len_hamming_dist(enc_msg, key_length_range)
+        proposed_key_lengths = key_len_hamming_dist(enc_msg, key_length_range)
     elif key_len_method == 'high-bits':
-        proposedKeyLengths = key_len_high_bits(enc_msg, key_length_range)
+        proposed_key_lengths = key_len_high_bits(enc_msg, key_length_range)
     else:
         raise Exception
 
-    for n in range(min(len(proposedKeyLengths), checks)):
-        key_length = proposedKeyLengths[n]
-        encMsgChunks = [enc_msg[i:key_length+i] for i in range(0, len(enc_msg), key_length)]
+    for n in range(min(len(proposed_key_lengths), checks)):
+        key_length = proposed_key_lengths[n]
+        enc_msg_chunks = [enc_msg[i:key_length+i] for i in range(0, len(enc_msg), key_length)]
         print('\n[+] Check for key length: ' + str(key_length))
-        crack_blocks(encMsgChunks, method, lang_stats, char_base)
+        crack_blocks(enc_msg_chunks, method, lang_stats, char_base)
 
 
 def key_len_hamming_dist(enc_msg, key_length_range):
@@ -423,7 +423,7 @@ def crack_blocks(enc_msgs, method='spaces', lang_stats=ENGLISH_LETTERS, char_bas
     v.show(enc_msgs, keys_candidates, char_base)
 
 
-def find_key_by_most_common_char(enc_msg, mostCommonCh=' '):
+def find_key_by_most_common_char(enc_msg, most_common_ch=' '):
     """ Find key by most common character (be default space) """
     counters = []
     for e in enc_msg:
@@ -432,7 +432,7 @@ def find_key_by_most_common_char(enc_msg, mostCommonCh=' '):
                 counters.append(Counter())
             counters[ix][e[ix]] += 1
 
-    most_common_byte = ord(mostCommonCh)
+    most_common_byte = ord(most_common_ch)
     keys_candidates = []
     for ix in range(len(counters)):
         keys_candidates.append([counters[ix].most_common(1)[0][0] ^ most_common_byte])
