@@ -1,4 +1,5 @@
-#! /usr/bin/env python
+#! /usr/bin/env python2
+# -*- coding: utf-8 -*-
 # Author: Mateusz Janda (mateusz.janda [at] gmail [dot] com)
 # Ad maiorem Dei gloriam
 

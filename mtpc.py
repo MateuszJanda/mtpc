@@ -1,4 +1,5 @@
-#! /usr/bin/env python
+#! /usr/bin/env python2
+# -*- coding: utf-8 -*-
 # Author: Mateusz Janda (mateusz.janda [at] gmail [dot] com)
 # Ad maiorem Dei gloriam
 
@@ -22,7 +23,6 @@ from collections import Counter
 from collections import namedtuple
 import operator
 import string
-import math
 
 
 # http://www.data-compression.com/english.html
@@ -226,7 +226,7 @@ class FreqMatcher:
     def match(self, xored_bytes):
         freq = self._xors_freqs[xored_bytes]
         prob_letters = [letters for letters, f in self._freq_tab.items()
-                       if (f - self._delta) < freq < (f + self._delta)]
+                        if (f - self._delta) < freq < (f + self._delta)]
         unique_letters = set([ord(l) for l in itertools.chain(*prob_letters)])
         return unique_letters
 
@@ -266,7 +266,7 @@ class ResultView:
     def _print_num_of_combinations(self, keys_candidates):
         num_of_combinations = 1
         for keys in keys_candidates:
-            if len(keys) == 0:
+            if not keys:
                 continue
             num_of_combinations *= len(keys)
         print('[+] Number of combinations: ' + str(num_of_combinations))
@@ -320,7 +320,7 @@ class ResultView:
 
 
 def crack_stream(enc_msg, method='spaces', key_len_method='high-bits', lang_stats=ENGLISH_LETTERS,
-                char_base=(string.letters+' _{}'), key_length_range=(2, 100), checks=5):
+                 char_base=(string.letters+' _{}'), key_length_range=(2, 100), checks=5):
     """
     Crack byte stream, where key was reused more than one (key length is shorter than stream length)
     :param enc_msg: each character should be encoded as int
