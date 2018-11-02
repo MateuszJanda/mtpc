@@ -28,158 +28,158 @@ def encryptOtpInt(msg, key):
 
 class TestCracker(unittest.TestCase):
     def test_crack_whenSameLetter_resultIsUnknown(self):
-        lettersDist = {
+        letters_dist = {
             'a': 1,
         }
-        charBase = 'a'
-        matcher = mtpc.FreqMatcher(lettersDist, delta=0.15)
-        c = mtpc.Cracker(charBase, matcher)
+        char_base = 'a'
+        matcher = mtpc.FreqMatcher(letters_dist, delta=0.15)
+        c = mtpc.Cracker(char_base, matcher)
 
-        encMsgs = [
+        enc_msgs = [
             encryptOtp(msg='a', key='a'),
             encryptOtp(msg='a', key='a')
         ]
 
-        keysCandidates = c.run(encMsgs)
-        self.assertItemsEqual(keysCandidates, [[None]])
+        keys_candidates = c.run(enc_msgs)
+        self.assertItemsEqual(keys_candidates, [[None]])
 
     def test_crack_whenTextMathLanguagePattern_returnProposal(self):
-        lettersDist = {
+        letters_dist = {
             'a': 0.75,
             'b': 0.25
         }
-        charBase = 'ab'
-        matcher = mtpc.FreqMatcher(lettersDist, delta=0.15)
-        c = mtpc.Cracker(charBase, matcher)
+        char_base = 'ab'
+        matcher = mtpc.FreqMatcher(letters_dist, delta=0.15)
+        c = mtpc.Cracker(char_base, matcher)
 
-        encMsgs = [
+        enc_msgs = [
             encryptOtp(msg='a', key='b'),
             encryptOtp(msg='b', key='b')
         ]
 
-        keysCandidates = c.run(encMsgs)
-        self.assertItemsEqual(keysCandidates, [[ord('a'), ord('b')]])
+        keys_candidates = c.run(enc_msgs)
+        self.assertItemsEqual(keys_candidates, [[ord('a'), ord('b')]])
 
     def test_crack_whenFreqInDifferentOrder_returnProposal(self):
-        lettersDist = {
+        letters_dist = {
             'a': 0.25,
             'b': 0.75
         }
-        charBase = 'ab'
-        matcher = mtpc.FreqMatcher(lettersDist, delta=0.15)
-        c = mtpc.Cracker(charBase, matcher)
+        char_base = 'ab'
+        matcher = mtpc.FreqMatcher(letters_dist, delta=0.15)
+        c = mtpc.Cracker(char_base, matcher)
 
-        encMsgs = [
+        enc_msgs = [
             encryptOtp(msg='a', key='b'),
             encryptOtp(msg='b', key='b')
         ]
 
-        keysCandidates = c.run(encMsgs)
-        self.assertItemsEqual(keysCandidates, [[ord('a'), ord('b')]])
+        keys_candidates = c.run(enc_msgs)
+        self.assertItemsEqual(keys_candidates, [[ord('a'), ord('b')]])
 
     def test_crack_whenTextIsLonger(self):
-        lettersDist = {
+        letters_dist = {
             'a': 0.75,
             'b': 0.25
         }
-        charBase = 'ab'
-        matcher = mtpc.FreqMatcher(lettersDist, delta=0.15)
-        c = mtpc.Cracker(charBase, matcher)
+        char_base = 'ab'
+        matcher = mtpc.FreqMatcher(letters_dist, delta=0.15)
+        c = mtpc.Cracker(char_base, matcher)
 
-        encMsgs = [
+        enc_msgs = [
             encryptOtp(msg='aaba', key='abaa'),
             encryptOtp(msg='baaa', key='abaa')
         ]
 
-        keysCandidates = c.run(encMsgs)
-        self.assertItemsEqual(keysCandidates, [[ord('a'), ord('b')],
-                                               [None],
-                                               [ord('a'), ord('b')],
-                                               [None]])
+        keys_candidates = c.run(enc_msgs)
+        self.assertItemsEqual(keys_candidates, [[ord('a'), ord('b')],
+                                                [None],
+                                                [ord('a'), ord('b')],
+                                                [None]])
 
     def test_crack_whenCharBaseIsLargerThanKeysInDistributionTable(self):
-        lettersDist = {
+        letters_dist = {
             'a': 0.75,
             'b': 0.25
         }
-        charBase = 'abc'
-        matcher = mtpc.FreqMatcher(lettersDist, delta=0.51)
-        c = mtpc.Cracker(charBase, matcher)
+        char_base = 'abc'
+        matcher = mtpc.FreqMatcher(letters_dist, delta=0.51)
+        c = mtpc.Cracker(char_base, matcher)
 
-        encMsgs = [
+        enc_msgs = [
             encryptOtp(msg='aaca', key='abaa'),
             encryptOtp(msg='baaa', key='abaa')
         ]
 
-        keysCandidates = c.run(encMsgs)
-        self.assertItemsEqual(keysCandidates, [[ord('a'), ord('b')],
-                                               [None],
-                                               [ord('a'), ord('c')],
-                                               [None]])
+        keys_candidates = c.run(enc_msgs)
+        self.assertItemsEqual(keys_candidates, [[ord('a'), ord('b')],
+                                                [None],
+                                                [ord('a'), ord('c')],
+                                                [None]])
 
     def test_crack_whenThreeLettersInDistTable(self):
-        lettersDist = {
+        letters_dist = {
             'a': 0.6,
             'b': 0.3,
             'c': 0.1
         }
-        charBase = 'abc'
-        matcher = mtpc.FreqMatcher(lettersDist, delta=0.15)
-        c = mtpc.Cracker(charBase, matcher)
+        char_base = 'abc'
+        matcher = mtpc.FreqMatcher(letters_dist, delta=0.15)
+        c = mtpc.Cracker(char_base, matcher)
 
-        encMsgs = [
+        enc_msgs = [
             encryptOtp(msg='aababbacaa', key='abaaacaabb'),
             encryptOtp(msg='bcaaabbaaa', key='abaaacaabb')
         ]
 
-        keysCandidates = c.run(encMsgs)
-        self.assertItemsEqual(keysCandidates, [[ord('a'), ord('b')],
-                                               [96, ord('b')],
-                                               [ord('a'), ord('b')],
-                                               [None],
-                                               [ord('a'), ord('b')],
-                                               [None],
-                                               [ord('a'), ord('b')],
-                                               [ord('a'), ord('c')],
-                                               [None],
-                                               [None]])
+        keys_candidates = c.run(enc_msgs)
+        self.assertItemsEqual(keys_candidates, [[ord('a'), ord('b')],
+                                                [96, ord('b')],
+                                                [ord('a'), ord('b')],
+                                                [None],
+                                                [ord('a'), ord('b')],
+                                                [None],
+                                                [ord('a'), ord('b')],
+                                                [ord('a'), ord('c')],
+                                                [None],
+                                                [None]])
 
 
 class TestCrackStream(unittest.TestCase):
     def test_hammingDistance(self):
-        encMsg = '9887702584b28e6c71b7bb997e7195bf817a3884bf98353889fa9f7d34c7bc8a7625c7ae837425cbfa9e7b258e' \
-                 'b6cb73308ea8876c7195bf88703f93b69239718eaecb623094fa9b673e85bb897928c798997c2586b3853222c7' \
-                 'b88e6625c7b18e6525c7a98e762382aec535058fb398353894fa89703286af98707188bccb613982fa98703295' \
-                 'bf886c7194af99673e92b48f7c3f80fa8a793dc7ae83707186b99f7c278eae827022c7b98a67238ebf8f353e89' \
-                 'fa83702382fa8f60238eb48c350688a8877171b0bb99350590b5cb623094fa84737191b39f743dc7b386653e95' \
-                 'ae8a7b3282fa9f7a7188af99353f86ae827a3f86b6cb663484af997c259efa8a7b35c7af8761388abb9f707191' \
-                 'b388613e95a3c5'
+        enc_msg = '9887702584b28e6c71b7bb997e7195bf817a3884bf98353889fa9f7d34c7bc8a7625c7ae837425cbfa9e7b258e' \
+                  'b6cb73308ea8876c7195bf88703f93b69239718eaecb623094fa9b673e85bb897928c798997c2586b3853222c7' \
+                  'b88e6625c7b18e6525c7a98e762382aec535058fb398353894fa89703286af98707188bccb613982fa98703295' \
+                  'bf886c7194af99673e92b48f7c3f80fa8a793dc7ae83707186b99f7c278eae827022c7b98a67238ebf8f353e89' \
+                  'fa83702382fa8f60238eb48c350688a8877171b0bb99350590b5cb623094fa84737191b39f743dc7b386653e95' \
+                  'ae8a7b3282fa9f7a7188af99353f86ae827a3f86b6cb663484af997c259efa8a7b35c7af8761388abb9f707191' \
+                  'b388613e95a3c5'
 
-        e = [ord(ch) for ch in encMsg.decode('hex')]
+        e = [ord(ch) for ch in enc_msg.decode('hex')]
 
-        self.assertAlmostEqual(mtpc.hammingDistance(e, 5), 3)
-        self.assertAlmostEqual(mtpc.hammingDistance(e, 2), 3.5)
-        self.assertAlmostEqual(mtpc.hammingDistance(e, 3), 3.67, delta=0.01)
-        self.assertAlmostEqual(mtpc.hammingDistance(e, 6), 3.83, delta=0.01)
+        self.assertAlmostEqual(mtpc.hamming_distance(e, 5), 3)
+        self.assertAlmostEqual(mtpc.hamming_distance(e, 2), 3.5)
+        self.assertAlmostEqual(mtpc.hamming_distance(e, 3), 3.67, delta=0.01)
+        self.assertAlmostEqual(mtpc.hamming_distance(e, 6), 3.83, delta=0.01)
 
     def test_keyLenHighBits(self):
-        encMsg = encryptOtpInt(msg='aababcaa', key=[0x00, 0xff, 0xff, 0x00, 0xff, 0xff, 0x00, 0xff])
-        self.assertItemsEqual(mtpc.keyLenHighBits(encMsg, keyLengthRange=(1, 4)), [3])
+        enc_msg = encryptOtpInt(msg='aababcaa', key=[0x00, 0xff, 0xff, 0x00, 0xff, 0xff, 0x00, 0xff])
+        self.assertItemsEqual(mtpc.key_len_high_bits(enc_msg, key_length_range=(1, 4)), [3])
 
 
 class TestCrackBlock(unittest.TestCase):
     def test_findKeyByMostCommonChar(self):
-        encMsgs = [
+        enc_msgs = [
             encryptOtp(msg=' a a', key='vxyz'),
             encryptOtp(msg='  ab', key='vxyz'),
             encryptOtp(msg='b ab', key='vxyz')
         ]
 
-        keysCandidates = mtpc.findKeyByMostCommonChar(encMsgs)
-        self.assertItemsEqual(keysCandidates, [[ord('v')],
-                                               [ord('x')],
-                                               [ord('a') ^ ord('y') ^ ord(' ')],
-                                               [ord('b') ^ ord('z') ^ ord(' ')]])
+        keys_candidates = mtpc.find_key_by_most_common_char(enc_msgs)
+        self.assertItemsEqual(keys_candidates, [[ord('v')],
+                                                [ord('x')],
+                                                [ord('a') ^ ord('y') ^ ord(' ')],
+                                                [ord('b') ^ ord('z') ^ ord(' ')]])
 
 
 class TestLettersDistributor(unittest.TestCase):

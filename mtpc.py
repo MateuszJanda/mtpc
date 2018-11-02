@@ -59,225 +59,225 @@ ENGLISH_LETTERS = {
 
 class LettersDistributor:
     @staticmethod
-    def distribution(lettersDist=ENGLISH_LETTERS):
-        freqTab = {}
+    def distribution(letters_dist=ENGLISH_LETTERS):
+        freq_tab = {}
 
-        chars = sorted(lettersDist.keys())
+        chars = sorted(letters_dist.keys())
         for pos, ch1 in enumerate(chars):
             for ch2 in chars[pos+1:]:
-                freqTab[(ch1, ch2)] = lettersDist[ch1] * lettersDist[ch2]
+                freq_tab[(ch1, ch2)] = letters_dist[ch1] * letters_dist[ch2]
 
-        freqSum = sum([freq for freq in freqTab.values()])
-        for lettersPair, freq in freqTab.items():
-            freqTab[lettersPair] = freq / freqSum
+        freq_sum = sum([freq for freq in freq_tab.values()])
+        for letters_pair, freq in freq_tab.items():
+            freq_tab[letters_pair] = freq / freq_sum
 
-        return freqTab
+        return freq_tab
 
-    def printDebug(self, lettersDist=ENGLISH_LETTERS):
+    def print_debug(self, letters_dist=ENGLISH_LETTERS):
         print('[i] Second order letters distribution')
-        freqTab = self.distribution()
-        sortedTab = sorted(freqTab.items(), key=operator.itemgetter(1), reverse=True)
-        for letters, freq in sortedTab:
+        freq_tab = self.distribution()
+        sorted_tab = sorted(freq_tab.items(), key=operator.itemgetter(1), reverse=True)
+        for letters, freq in sorted_tab:
             print('[i] ' + str(letters) + ': ' + str(freq))
 
-        freqSum = sum([freq for freq in freqTab.values()])
-        print('[i] Sum \'m1^m2\' probabilities: ' + str(freqSum * 2))
+        freq_sum = sum([freq for freq in freq_tab.values()])
+        print('[i] Sum \'m1^m2\' probabilities: ' + str(freq_sum * 2))
 
-        countFreqM = sum([f for f in lettersDist.values()])
+        countFreqM = sum([f for f in letters_dist.values()])
         print('[i] Sum \'m\' probabilities:     ' + str(countFreqM))
         print('[i] ------')
 
 
 class Cracker:
-    def __init__(self, charBase, msgBytesMatcher):
+    def __init__(self, char_base, msg_bytes_matcher):
         self._analyzer = EncDataAnalyzer()
-        self._charBase = charBase
-        self._msgBytesMatcher = msgBytesMatcher
+        self._char_base = char_base
+        self._msg_bytes_matcher = msg_bytes_matcher
 
-    def run(self, encMsgs):
-        encData = self._analyzer.count(encMsgs)
-        self._msgBytesMatcher.setXorsFreqs(encData.xorsFreqs)
-        keys = self._getKeyBytes(encData.encMsgs)
-        keys = self._filterKeys(encData, keys)
+    def run(self, enc_msgs):
+        enc_data = self._analyzer.count(enc_msgs)
+        self._msg_bytes_matcher.set_xors_freqs(enc_data.xors_freqs)
+        keys = self._get_key_bytes(enc_data.enc_msgs)
+        keys = self._filterKeys(enc_data, keys)
         return keys
 
-    def _getKeyBytes(self, encMsgs):
-        keyCombinations = []
-        for pos, enc1 in enumerate(encMsgs):
-            for enc2 in encMsgs[pos + 1:]:
-                keyCombinations.append(self._predictKeyFotTwoEncMsgs(enc1, enc2))
+    def _get_key_bytes(self, enc_msgs):
+        key_combinations = []
+        for pos, enc1 in enumerate(enc_msgs):
+            for enc2 in enc_msgs[pos + 1:]:
+                key_combinations.append(self._predict_key_for_two_enc_msgs(enc1, enc2))
 
-        keys = self._mergeKeyBytesPerPos(keyCombinations)
+        keys = self._mergeKeyBytesPerPos(key_combinations)
         return keys
 
-    def _predictKeyFotTwoEncMsgs(self, enc1, enc2):
+    def _predict_key_for_two_enc_msgs(self, enc1, enc2):
         keys = []
         for c1, c2 in zip(enc1, enc2):
-            xorResult = c1 ^ c2
-            if xorResult == 0:
+            xor_result = c1 ^ c2
+            if xor_result == 0:
                 keys.append(set())
             else:
-                msgBytes = self._msgBytesMatcher.match(xorResult)
-                keys.append(self._matchKeyBytesByMsgBytes(c1, c2, msgBytes))
+                msg_bytes = self._msg_bytes_matcher.match(xor_result)
+                keys.append(self._match_key_bytes_by_msg_bytes(c1, c2, msg_bytes))
 
         return keys
 
-    def _matchKeyBytesByMsgBytes(self, c1, c2, msgBytes):
-        keyBytes = [c1 ^ m for m in msgBytes]
-        keyBytes += [c2 ^ m for m in msgBytes]
+    def _match_key_bytes_by_msg_bytes(self, c1, c2, msg_bytes):
+        keyBytes = [c1 ^ m for m in msg_bytes]
+        keyBytes += [c2 ^ m for m in msg_bytes]
         return set(keyBytes)
 
-    def _mergeKeyBytesPerPos(self, keyCombinations):
-        possibleKeys = []
-        for comb in keyCombinations:
+    def _mergeKeyBytesPerPos(self, key_combinations):
+        possible_keys = []
+        for comb in key_combinations:
             for pos, keys in enumerate(comb):
-                if pos >= len(possibleKeys):
-                    possibleKeys.append(set())
-                possibleKeys[pos].update(keys)
+                if pos >= len(possible_keys):
+                    possible_keys.append(set())
+                possible_keys[pos].update(keys)
 
-        return possibleKeys
+        return possible_keys
 
-    def _filterKeys(self, encData, keysPerPos):
-        possibleKeys = []
+    def _filterKeys(self, enc_data, keysPerPos):
+        possible_keys = []
         for pos, keys in enumerate(keysPerPos):
-            possibleKeys.append([])
+            possible_keys.append([])
             for k in keys:
-                if self._testColumn(pos, k, encData.encMsgs):
-                    possibleKeys[-1].append(k)
+                if self._test_column(pos, k, enc_data.enc_msgs):
+                    possible_keys[-1].append(k)
 
             # If no proposals for this position, replace it by [None] (easier to use be itertools.product)
-            if not possibleKeys[-1]:
-                possibleKeys[-1] = [None]
+            if not possible_keys[-1]:
+                possible_keys[-1] = [None]
 
-        return possibleKeys
+        return possible_keys
 
-    def _testColumn(self, pos, key, encMsgs):
-        for encMsg in encMsgs:
-            if pos >= len(encMsg):
+    def _test_column(self, pos, key, enc_msgs):
+        for enc_msg in enc_msgs:
+            if pos >= len(enc_msg):
                 continue
-            if chr(encMsg[pos] ^ key) not in self._charBase:
+            if chr(enc_msg[pos] ^ key) not in self._char_base:
                 return False
 
         return True
 
 
-EncData = namedtuple('EncData', ['encMsgs', 'xorsCounts', 'xorsFreqs'])
+EncData = namedtuple('EncData', ['enc_msgs', 'xors_counts', 'xors_freqs'])
 
 
 class EncDataAnalyzer:
     def __init__(self, verbose=False):
         self._verbose = verbose
 
-    def count(self, encMsgs):
-        xorsCounts = self._countXors(encMsgs)
-        xorsFreqs = self._countFreq(xorsCounts)
+    def count(self, enc_msgs):
+        xors_counts = self._count_xors(enc_msgs)
+        xors_freqs = self._count_freq(xors_counts)
 
-        encData = EncData(encMsgs, xorsCounts, xorsFreqs)
+        enc_data = EncData(enc_msgs, xors_counts, xors_freqs)
         if self._verbose:
-            self._printStats(encData)
+            self._print_stats(enc_data)
 
-        return encData
+        return enc_data
 
-    def _countXors(self, encMsgs):
-        xorsCounts = Counter()
-        for num, enc1 in enumerate(encMsgs):
-            for enc2 in encMsgs[num+1:]:
-                self._countXorsInPair(xorsCounts, enc1, enc2)
+    def _count_xors(self, enc_msgs):
+        xors_counts = Counter()
+        for num, enc1 in enumerate(enc_msgs):
+            for enc2 in enc_msgs[num+1:]:
+                self._count_xors_in_pair(xors_counts, enc1, enc2)
 
-        return xorsCounts
+        return xors_counts
 
-    def _countXorsInPair(self, xorsCounts, enc1, enc2):
+    def _count_xors_in_pair(self, xors_counts, enc1, enc2):
         for c1, c2 in zip(enc1, enc2):
-            xorResult = c1 ^ c2
+            xor_result = c1 ^ c2
             # xor-ing same characters give as 0, and we can't determine what this character are
-            if xorResult == 0:
+            if xor_result == 0:
                 continue
-            xorsCounts[xorResult] += 1
+            xors_counts[xor_result] += 1
 
-    def _countFreq(self, xorsCounts):
-        xorsFreqs = {}
-        total = sum([count for _, count in xorsCounts.iteritems()])
-        for mm, count in xorsCounts.iteritems():
-            xorsFreqs[mm] = count / total
+    def _count_freq(self, xors_counts):
+        xors_freqs = {}
+        total = sum([count for _, count in xors_counts.iteritems()])
+        for mm, count in xors_counts.iteritems():
+            xors_freqs[mm] = count / total
 
-        return xorsFreqs
+        return xors_freqs
 
-    def _printStats(self, encData):
+    def _print_stats(self, enc_data):
         print('[i] Frequencies (c1^c2 -> freq):')
-        for cc, f in encData.xorsFreqs.items():
+        for cc, f in enc_data.xors_freqs.items():
             print('[i] ' + '0x' + '{:02x}'.format(cc) + ': ' + str(f))
 
-        print('[i] Unique \'c1^c2\' elements: ' + str(len(encData.xorsCounts)))
-        freqSum = sum([f for f in encData.xorsFreqs.values()])
-        print('[i] Sum \'c1^c2\' probabilities: ' + str(freqSum))
+        print('[i] Unique \'c1^c2\' elements: ' + str(len(enc_data.xors_counts)))
+        freq_sum = sum([f for f in enc_data.xors_freqs.values()])
+        print('[i] Sum \'c1^c2\' probabilities: ' + str(freq_sum))
         print('\n')
 
 
 class FreqMatcher:
-    def __init__(self, langStats, delta):
-        self._freqTab = LettersDistributor.distribution(langStats)
+    def __init__(self, lang_stats, delta):
+        self._freq_tab = LettersDistributor.distribution(lang_stats)
         self._delta = delta
-        # Must be set by setXorsFreqs()
-        self._xorsFreqs = None
+        # Must be set by set_xors_freqs()
+        self._xors_freqs = None
 
-    def setXorsFreqs(self, xorsFreqs):
-        self._xorsFreqs = xorsFreqs
+    def set_xors_freqs(self, xors_freqs):
+        self._xors_freqs = xors_freqs
 
-    def match(self, xoredBytes):
-        freq = self._xorsFreqs[xoredBytes]
-        probLetters = [letters for letters, f in self._freqTab.items()
+    def match(self, xored_bytes):
+        freq = self._xors_freqs[xored_bytes]
+        prob_letters = [letters for letters, f in self._freq_tab.items()
                        if (f - self._delta) < freq < (f + self._delta)]
-        uniqueLetters = set([ord(l) for l in itertools.chain(*probLetters)])
-        return uniqueLetters
+        unique_letters = set([ord(l) for l in itertools.chain(*prob_letters)])
+        return unique_letters
 
 
 class FreqOrderMatcher:
-    def __init__(self, langStats):
-        self._freqTab = LettersDistributor.distribution(langStats)
-        # Must be set by setXorsFreqs()
-        self._orderdFreqs = None
+    def __init__(self, lang_stats):
+        self._freq_tab = LettersDistributor.distribution(lang_stats)
+        # Must be set by set_xors_freqs()
+        self._orderd_freqs = None
 
-    def setXorsFreqs(self, xorsFreqs):
-        sorrtedXorsFreq = sorted(xorsFreqs.items(), key=operator.itemgetter(1), reverse=True)
-        sortedLangFreqs = sorted(self._freqTab.items(), key=operator.itemgetter(1), reverse=True)
+    def set_xors_freqs(self, xors_freqs):
+        sorrted_xors_freq = sorted(xors_freqs.items(), key=operator.itemgetter(1), reverse=True)
+        sorted_lang_freqs = sorted(self._freq_tab.items(), key=operator.itemgetter(1), reverse=True)
 
-        self._orderdFreqs = {}
-        for z in zip(sorrtedXorsFreq, sortedLangFreqs):
-            self._orderdFreqs[z[0][0]] = z[1][0]
+        self._orderd_freqs = {}
+        for z in zip(sorrted_xors_freq, sorted_lang_freqs):
+            self._orderd_freqs[z[0][0]] = z[1][0]
 
-    def match(self, xoredBytes):
-        uniqueLetters = set([ord(l) for l in self._orderdFreqs[xoredBytes]])
-        return uniqueLetters
+    def match(self, xored_bytes):
+        unique_letters = set([ord(l) for l in self._orderd_freqs[xored_bytes]])
+        return unique_letters
 
 
 class ResultView:
-    def show(self, encMsgs, keysCandidates, charBase, checks=1):
-        self._printNumberOfCombinations(keysCandidates)
-        for num, key in enumerate(itertools.product(*keysCandidates)):
+    def show(self, enc_msgs, keys_candidates, char_base, checks=1):
+        self._print_num_of_combinations(keys_candidates)
+        for num, key in enumerate(itertools.product(*keys_candidates)):
             if num >= checks:
                 break
-            self._printKeysCounts(keysCandidates)
-            self._printIndex(key)
-            self._printSecretMsgs(encMsgs, key)
-            self._printSecretKeyStr(key, charBase)
-            self._printSecretKeyHex(key)
-            self._printSeparator()
+            self._print_keys_counts(keys_candidates)
+            self._print_index(key)
+            self._print_secret_msgs(enc_msgs, key)
+            self._print_secret_key_str(key, char_base)
+            self._print_secret_key_hex(key)
+            self._print_separator()
 
-    def _printNumberOfCombinations(self, keysCandidates):
-        numberOfCombinations = 1
-        for keys in keysCandidates:
+    def _print_num_of_combinations(self, keys_candidates):
+        num_of_combinations = 1
+        for keys in keys_candidates:
             if len(keys) == 0:
                 continue
-            numberOfCombinations *= len(keys)
-        print('[+] Number of combinations: ' + str(numberOfCombinations))
+            num_of_combinations *= len(keys)
+        print('[+] Number of combinations: ' + str(num_of_combinations))
 
-    def _printKeysCounts(self, keysCandidates):
-        print('[*] Keys counts: ' + ''.join(['*' if len(keys) >= 10 else str(len(keys)) for keys in keysCandidates]))
+    def _print_keys_counts(self, keys_candidates):
+        print('[*] Keys counts: ' + ''.join(['*' if len(keys) >= 10 else str(len(keys)) for keys in keys_candidates]))
 
-    def _printSecretMsgs(self, encMsgs, key):
-        for num, encMsg in enumerate(encMsgs):
+    def _print_secret_msgs(self, enc_msgs, key):
+        for num, enc_msg in enumerate(enc_msgs):
             output = ''
-            for c, k in zip(encMsg, key):
+            for c, k in zip(enc_msg, key):
                 if k is not None and chr(c ^ k) in string.printable:
                     output += chr(c ^ k)
                 else:
@@ -287,25 +287,25 @@ class ResultView:
                 space = '....'
             print('[*] Plain' + space + str(num) + ': ' + output)
 
-    def _printIndex(self, key):
+    def _print_index(self, key):
         output = ''
         for i in xrange(len(key)):
             output += str(i % 10)
         print('[*] Index......: ' + output)
 
-    def _printSecretKeyStr(self, key, charBase):
+    def _print_secret_key_str(self, key, char_base):
         result = ''
         for k in key:
             if k is None:
                 result += '_'
-            elif chr(k) not in charBase:
+            elif chr(k) not in char_base:
                 result += '?'
             else:
                 result += chr(k)
 
         print('[*] Key (str)..: ' + result)
 
-    def _printSecretKeyHex(self, key):
+    def _print_secret_key_hex(self, key):
         result = ''
         for k in key:
             if k is None:
@@ -315,46 +315,46 @@ class ResultView:
 
         print('[*] Key (hex)..: ' + result)
 
-    def _printSeparator(self):
+    def _print_separator(self):
         print('[+] -----')
 
 
-def crackStream(encMsg, method='spaces', keyLenMethod='high-bits', langStats=ENGLISH_LETTERS,
-                charBase=(string.letters+' _{}'), keyLengthRange=(2, 100), checks=5):
+def crack_stream(enc_msg, method='spaces', key_len_method='high-bits', lang_stats=ENGLISH_LETTERS,
+                char_base=(string.letters+' _{}'), key_length_range=(2, 100), checks=5):
     """
     Crack byte stream, where key was reused more than one (key length is shorter than stream length)
-    :param encMsg: each character should be encoded as int
+    :param enc_msg: each character should be encoded as int
     :param method: cracking method: 'best-freq', 'first-order-freq', 'spaces'
-    :param keyLenMethod: method to determine key length: 'hamming', 'high-bits'
-    :param langStats: character frequencies distribution in specific language: default ENGLISH_LETTERS
-    :param charBase: expected characters in output message
-    :param keyLengthRange: key length ranges to check
+    :param key_len_method: method to determine key length: 'hamming', 'high-bits'
+    :param lang_stats: character frequencies distribution in specific language: default ENGLISH_LETTERS
+    :param char_base: expected characters in output message
+    :param key_length_range: key length ranges to check
     :param checks: number of best result to show
     """
-    if keyLenMethod == 'hamming':
-        proposedKeyLengths = keyLenHammingDist(encMsg, keyLengthRange)
-    elif keyLenMethod == 'high-bits':
-        proposedKeyLengths = keyLenHighBits(encMsg, keyLengthRange)
+    if key_len_method == 'hamming':
+        proposedKeyLengths = key_len_hamming_dist(enc_msg, key_length_range)
+    elif key_len_method == 'high-bits':
+        proposedKeyLengths = key_len_high_bits(enc_msg, key_length_range)
     else:
         raise Exception
 
     for n in range(min(len(proposedKeyLengths), checks)):
-        keyLength = proposedKeyLengths[n]
-        encMsgChunks = [encMsg[i:keyLength+i] for i in range(0, len(encMsg), keyLength)]
-        print('\n[+] Check for key length: ' + str(keyLength))
-        crackBlocks(encMsgChunks, method, langStats, charBase)
+        key_length = proposedKeyLengths[n]
+        encMsgChunks = [enc_msg[i:key_length+i] for i in range(0, len(enc_msg), key_length)]
+        print('\n[+] Check for key length: ' + str(key_length))
+        crack_blocks(encMsgChunks, method, lang_stats, char_base)
 
 
-def keyLenHammingDist(encMsg, keyLengthRange):
-    keysHD = {}
+def key_len_hamming_dist(enc_msg, key_length_range):
+    keys_hd = {}
 
-    for keyLength in range(*keyLengthRange):
-        keysHD[keyLength] = hammingDistance(encMsg, keyLength)
+    for key_length in range(*key_length_range):
+        keys_hd[key_length] = hamming_distance(enc_msg, key_length)
 
-    sortedTab = sorted(keysHD.items(), key=operator.itemgetter(1), reverse=True)
+    sorted_tab = sorted(keys_hd.items(), key=operator.itemgetter(1), reverse=True)
     print('Hamming distance from worst to best:')
     result = []
-    for k, hd in sortedTab:
+    for k, hd in sorted_tab:
         print('[+] Length [' + str(k) + '] : ' + str(hd))
         result.append(k)
 
@@ -362,79 +362,79 @@ def keyLenHammingDist(encMsg, keyLengthRange):
     return result
 
 
-def keyLenHighBits(encMsg, keyLengthRange):
+def key_len_high_bits(enc_msg, key_length_range):
     """ Works only when key contain high bits (key is not build from printable characters) """
     HIGH_BIT_MASK = 0x80
     result = []
-    for keyLength in range(*keyLengthRange):
-        goodKey = True
-        for ix in range(keyLength):
-            bytesPerPos = encMsg[ix::keyLength]
+    for key_length in range(*key_length_range):
+        good_key = True
+        for ix in range(key_length):
+            bytes_per_pos = enc_msg[ix::key_length]
 
-            searchedBit = bytesPerPos[0] & HIGH_BIT_MASK
-            for b in bytesPerPos:
-                if b & HIGH_BIT_MASK != searchedBit:
-                    goodKey = False
+            searched_bit = bytes_per_pos[0] & HIGH_BIT_MASK
+            for b in bytes_per_pos:
+                if b & HIGH_BIT_MASK != searched_bit:
+                    good_key = False
                     break
-            if not goodKey:
+            if not good_key:
                 break
 
-        if goodKey:
-            result.append(keyLength)
+        if good_key:
+            result.append(key_length)
 
     return result
 
 
-def hammingDistance(encMsg, keyLength):
+def hamming_distance(enc_msg, key_length):
     """ Normalized Hamming Distance """
     bits = 0
-    block1 = encMsg[:keyLength]
-    block2 = encMsg[keyLength:2*keyLength]
+    block1 = enc_msg[:key_length]
+    block2 = enc_msg[key_length:2*key_length]
 
-    for l in range(keyLength):
+    for l in range(key_length):
         bits += bin(block1[l] ^ block2[l]).count('1')
 
     # normalized Hamming distance
-    return bits / keyLength
+    return bits / key_length
 
 
-def crackBlocks(encMsgs, method='spaces', langStats=ENGLISH_LETTERS, charBase=(string.letters+' _{}')):
+def crack_blocks(enc_msgs, method='spaces', lang_stats=ENGLISH_LETTERS, char_base=(string.letters+' _{}')):
     """
     Crack blocks of bytes stream, where key was reused for each block.
-    :param encMsgs: encoded messages each character should be encoded as int
+    :param enc_msgs: encoded messages each character should be encoded as int
     :param method: cracking method: 'best-freq', 'first-order-freq', 'spaces'
-    :param langStats: character frequencies distribution in specific language: default ENGLISH_LETTERS
-    :param charBase: expected characters in output message
+    :param lang_stats: character frequencies distribution in specific language: default ENGLISH_LETTERS
+    :param char_base: expected characters in output message
     """
     if method == 'best-freq':
-        msgBytesMatcher = FreqMatcher(langStats, delta=0.3)
-        cracker = Cracker(charBase, msgBytesMatcher)
-        keysCandidates = cracker.run(encMsgs)
+        msg_bytes_matcher = FreqMatcher(lang_stats, delta=0.3)
+        cracker = Cracker(char_base, msg_bytes_matcher)
+        keys_candidates = cracker.run(enc_msgs)
     elif method == 'first-order-freq':
-        msgBytesMatcher = FreqOrderMatcher(langStats)
-        cracker = Cracker(charBase, msgBytesMatcher)
-        keysCandidates = cracker.run(encMsgs)
+        msg_bytes_matcher = FreqOrderMatcher(lang_stats)
+        cracker = Cracker(char_base, msg_bytes_matcher)
+        keys_candidates = cracker.run(enc_msgs)
     elif method == 'spaces':
-        keysCandidates = findKeyByMostCommonChar(encMsgs)
+        keys_candidates = find_key_by_most_common_char(enc_msgs)
     else:
         raise Exception
 
     v = ResultView()
-    v.show(encMsgs, keysCandidates, charBase)
+    v.show(enc_msgs, keys_candidates, char_base)
 
 
-def findKeyByMostCommonChar(encMsg, mostCommonCh=' '):
+def find_key_by_most_common_char(enc_msg, mostCommonCh=' '):
     """ Find key by most common character (be default space) """
     counters = []
-    for e in encMsg:
+    for e in enc_msg:
         for ix in range(len(e)):
             if ix == len(counters):
                 counters.append(Counter())
             counters[ix][e[ix]] += 1
 
-    mostCommonByte = ord(mostCommonCh)
-    keysCandidates = []
+    most_common_byte = ord(mostCommonCh)
+    keys_candidates = []
     for ix in range(len(counters)):
-        keysCandidates.append([counters[ix].most_common(1)[0][0] ^ mostCommonByte])
+        keys_candidates.append([counters[ix].most_common(1)[0][0] ^ most_common_byte])
 
-    return keysCandidates
+    return keys_candidates
