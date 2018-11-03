@@ -278,7 +278,7 @@ class ResultView:
         for num, enc_msg in enumerate(enc_msgs):
             output = ''
             for c, k in zip(enc_msg, key):
-                if k is not None and chr(c ^ k) in string.printable:
+                if k is not None and chr(c ^ k) in string.digits + string.letters + string.punctuation + ' ':
                     output += chr(c ^ k)
                 else:
                     output += '_'
@@ -320,7 +320,7 @@ class ResultView:
 
 
 def crack_stream(enc_msg, method='spaces', key_len_method='high-bits', lang_stats=ENGLISH_LETTERS,
-                 char_base=(string.letters+' _{}'), key_length_range=(2, 100), checks=5):
+                 char_base=string.letters+" '", key_length_range=(2, 100), checks=5):
     """
     Crack byte stream, where key was reused more than one (key length is shorter than stream length)
     :param enc_msg: each character should be encoded as int
@@ -398,7 +398,7 @@ def hamming_distance(enc_msg, key_length):
     return bits / key_length
 
 
-def crack_blocks(enc_msgs, method='spaces', lang_stats=ENGLISH_LETTERS, char_base=(string.letters+' _{}')):
+def crack_blocks(enc_msgs, method='spaces', lang_stats=ENGLISH_LETTERS, char_base=string.letters+" '"):
     """
     Crack blocks of bytes stream, where key was reused for each block.
     :param enc_msgs: encoded messages each character should be encoded as int
