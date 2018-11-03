@@ -269,10 +269,10 @@ class ResultView:
             if not keys:
                 continue
             num_of_combinations *= len(keys)
-        print('[+] Number of combinations: ' + str(num_of_combinations))
+        print('Number of combinations: ' + str(num_of_combinations))
 
     def _print_keys_counts(self, keys_candidates):
-        print('[*] Keys counts: ' + ''.join(['*' if len(keys) >= 10 else str(len(keys)) for keys in keys_candidates]))
+        print('Keys counts: ' + ''.join(['*' if len(keys) >= 10 else str(len(keys)) for keys in keys_candidates]))
 
     def _print_secret_msgs(self, enc_msgs, key):
         for num, enc_msg in enumerate(enc_msgs):
@@ -285,13 +285,13 @@ class ResultView:
             space = '.....'
             if num >= 10:
                 space = '....'
-            print('[*] Plain' + space + str(num) + ': ' + output)
+            print('Plain' + space + str(num) + ': ' + output)
 
     def _print_index(self, key):
         output = ''
         for i in xrange(len(key)):
             output += str(i % 10)
-        print('[*] Index......: ' + output)
+        print('Index......: ' + output)
 
     def _print_secret_key_str(self, key, char_base):
         result = ''
@@ -303,7 +303,7 @@ class ResultView:
             else:
                 result += chr(k)
 
-        print('[*] Key (str)..: ' + result)
+        print('Key (str)..: ' + result)
 
     def _print_secret_key_hex(self, key):
         result = ''
@@ -313,14 +313,14 @@ class ResultView:
             else:
                 result += hex(k)[2:]
 
-        print('[*] Key (hex)..: ' + result)
+        print('Key (hex)..: ' + result)
 
     def _print_separator(self):
-        print('[+] -----')
+        print('End check')
 
 
 def crack_stream(enc_msg, method='spaces', key_len_method='high-bits', lang_stats=ENGLISH_LETTERS,
-                 char_base=string.letters+" '", key_length_range=(2, 100), checks=5):
+                 char_base=string.letters+" '", key_len_range=range(2, 100), checks=5):
     """
     Crack byte stream, where key was reused more than one (key length is shorter than stream length)
     :param enc_msg: each character should be encoded as int
@@ -328,45 +328,45 @@ def crack_stream(enc_msg, method='spaces', key_len_method='high-bits', lang_stat
     :param key_len_method: method to determine key length: 'hamming', 'high-bits'
     :param lang_stats: character frequencies distribution in specific language: default ENGLISH_LETTERS
     :param char_base: expected characters in output message
-    :param key_length_range: key length ranges to check
+    :param key_len_range: key length ranges to check
     :param checks: number of best result to show
     """
     if key_len_method == 'hamming':
-        proposed_key_lengths = key_len_hamming_dist(enc_msg, key_length_range)
+        proposed_key_lengths = key_len_hamming_dist(enc_msg, key_len_range)
     elif key_len_method == 'high-bits':
-        proposed_key_lengths = key_len_high_bits(enc_msg, key_length_range)
+        proposed_key_lengths = key_len_high_bits(enc_msg, key_len_range)
     else:
         raise Exception
 
     for n in range(min(len(proposed_key_lengths), checks)):
         key_length = proposed_key_lengths[n]
         enc_msg_chunks = [enc_msg[i:key_length+i] for i in range(0, len(enc_msg), key_length)]
-        print('\n[+] Check for key length: ' + str(key_length))
+        print('\nCheck for key length: ' + str(key_length))
         crack_blocks(enc_msg_chunks, method, lang_stats, char_base)
 
 
-def key_len_hamming_dist(enc_msg, key_length_range):
+def key_len_hamming_dist(enc_msg, key_len_range):
     keys_hd = {}
 
-    for key_length in range(*key_length_range):
+    for key_length in key_len_range:
         keys_hd[key_length] = hamming_distance(enc_msg, key_length)
 
     sorted_tab = sorted(keys_hd.items(), key=operator.itemgetter(1), reverse=True)
     print('Hamming distance from worst to best:')
     result = []
     for k, hd in sorted_tab:
-        print('[+] Length [' + str(k) + '] : ' + str(hd))
+        print('Length [' + str(k) + '] : ' + str(hd))
         result.append(k)
 
     result.reverse()
     return result
 
 
-def key_len_high_bits(enc_msg, key_length_range):
+def key_len_high_bits(enc_msg, key_len_range):
     """ Works only when key contain high bits (key is not build from printable characters) """
     HIGH_BIT_MASK = 0x80
     result = []
-    for key_length in range(*key_length_range):
+    for key_length in key_len_range:
         good_key = True
         for ix in range(key_length):
             bytes_per_pos = enc_msg[ix::key_length]
