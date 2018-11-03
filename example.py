@@ -34,8 +34,8 @@ def encrypted_stream():
 
 
 def encrypted_block():
+    # https://en.wikipedia.org/wiki/12_Angry_Men_(1957_film)
     blocks = [
-        # https://en.wikipedia.org/wiki/12_Angry_Men_(1957_film)
         'In a New York City courthouse a jury commences deliberating the case of an 18-year-old boy from a slum, on trial for allegedly stabbing his father to death.',
         'If there is any reasonable doubt they are to return a verdict of not guilty. If found guilty, the boy will receive a death sentence',
         'In a preliminary vote, all jurors vote "guilty" except Juror 8, who argues that the boy deserves some deliberation.',
