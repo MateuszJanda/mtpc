@@ -58,6 +58,7 @@ ENGLISH_LETTERS = {
 
 
 class LettersDistributor:
+    """ Calculate occurrence frequencies for each pairs of letters (e.g. 'a' ^ 'b') """
     @staticmethod
     def distribution(letters_dist=ENGLISH_LETTERS):
         freq_tab = {}
@@ -195,6 +196,7 @@ class EncDataAnalyzer:
             xors_counts[xor_result] += 1
 
     def _count_freq(self, xors_counts):
+        """ Calculate frequency for each bytes pairs in encrypted message. """
         xors_freqs = {}
         total = sum([count for _, count in xors_counts.iteritems()])
         for mm, count in xors_counts.iteritems():
@@ -214,6 +216,8 @@ class EncDataAnalyzer:
 
 
 class FreqMatcher:
+    """ Match xor-ed value (of two encrypted bytes) with pair of letters.
+    Matching is performed by frequency search with some delta. """
     def __init__(self, lang_stats, delta):
         self._freq_tab = LettersDistributor.distribution(lang_stats)
         self._delta = delta
@@ -232,18 +236,30 @@ class FreqMatcher:
 
 
 class FreqOrderMatcher:
+    """
+    Match xor-ed value (of two encrypted bytes) with pair of letters. Both
+    xor-ed value table and letters, are first sorted by their frequencies, and
+    then linked to each other - most common xor-ed value with most common pairs,
+    and so on.
+    """
     def __init__(self, lang_stats):
         self._freq_tab = LettersDistributor.distribution(lang_stats)
         # Must be set by set_xors_freqs()
         self._orderd_freqs = None
 
     def set_xors_freqs(self, xors_freqs):
+        """ Assign to each xor-ed value (of two encrypted message) corresponding
+        letters pair (deducted from letters frequency table for specific language. """
         sorrted_xors_freq = sorted(xors_freqs.items(), key=operator.itemgetter(1), reverse=True)
         sorted_lang_freqs = sorted(self._freq_tab.items(), key=operator.itemgetter(1), reverse=True)
+
+        print sorrted_xors_freq
 
         self._orderd_freqs = {}
         for z in zip(sorrted_xors_freq, sorted_lang_freqs):
             self._orderd_freqs[z[0][0]] = z[1][0]
+
+        print self._orderd_freqs
 
     def match(self, xored_bytes):
         unique_letters = set([ord(l) for l in self._orderd_freqs[xored_bytes]])
@@ -346,6 +362,7 @@ def crack_stream(enc_msg, method='spaces', key_len_method='high-bits', lang_stat
 
 
 def key_len_hamming_dist(enc_msg, key_len_range):
+    """ Determine key length by counting hamming distance - lower then better """
     keys_hd = {}
 
     for key_length in key_len_range:
@@ -386,7 +403,7 @@ def key_len_high_bits(enc_msg, key_len_range):
 
 
 def hamming_distance(enc_msg, key_length):
-    """ Normalized Hamming Distance """
+    """ Normalized Hamming Distance - lower then better """
     bits = 0
     block1 = enc_msg[:key_length]
     block2 = enc_msg[key_length:2*key_length]
