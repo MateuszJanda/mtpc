@@ -4,18 +4,18 @@ Simple application to crack "one-time pad" (now many-time pad) encrypted message
 
 There are two basic functions for cracking messages:
 * `crack_block()` - for cracking multiple block/separate messages, where length each of blocks is known, and secret key was reused for each of the blocks.
-* `crack_stream()` - for cracking one block/message, where secret key is significantly shorter than encrypted message, and waa reuesed multiple times.
+* `crack_stream()` - for cracking one block/message, where secret key is significantly shorter than encrypted message, and was reused multiple times.
 ```
 [+] Testing block cracking
 Number of combinations: 382321831366549831680
 Keys counts: *21221111111221111222112222221211111111111211112112212111111111211211111111111111211211121211222222*12117122312122111186171111127115422
 Index......: 012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234
-Plain.....0: Gi f N__ York C_t_ dh_rshoute_a__ur_ ____ei_es_celiber____g ___'_ase_o____ ___y_au__ld__hy f_oj'a'spum_ on srial'a__ aboecef_y tr__coe 
+Plain.....0: Gi f N__ York C_t_ dh_rshoute_a__ur_ ____ei_es_celiber____g ___'_ase_o____ ___y_au__ld__hy f_oj'a'spum_ on srial'a__ aboecef_y tr__coe
 Plain.....1: Ga she__ is any_r_ath_aele co_b__th_y____ s_ r_surn a ____ic___a_not_g____y___f_fh__d __nlty_ soe'bsy _ill ueceiqb__ dkbtl q_ntbh__
 Plain.....2: Gi f p__liminar_ _osb_ fll mu_o__ v_t____un_ty_'except____or___'_ho _r____ ___t_to__bo__cese_vbt toqe _elibbratihi_
-Plain.....3: Zoit i__itates _o_e'h_ she ht_e__ju_o____wo_ a_b impat____ f___f_qui_k____i___a_ih__ 
+Plain.....3: Zoit i__itates _o_e'h_ she ht_e__ju_o____wo_ a_b impat____ f___f_qui_k____i___a_ih__
 Plain.....4: ktpbci__ly Juro_ _ po_ oas si_k__s _o____ b_en_ig's Ya____s ___b_ an_ ____h___e_oi__ra__t bl_tfit'pnej_dice'agaiit__peasla d_om'u__lu
-Plain.....5: Drrhr __questio_s_tob_adcurfc_ __d _e____ik_ty_hf the ____ t___p_tne_s____a___t_e'__os__rtio_'t'ckaum _hat she mru__r yfatol_ 
+Plain.....5: Drrhr __questio_s_tob_adcurfc_ __d _e____ik_ty_hf the ____ t___p_tne_s____a___t_e'__os__rtio_'t'ckaum _hat she mru__r yfatol_
 Plain.....6: o'chmm__ switch_l_db'_oa whnc_ __ p_s____et_an_ndentic____op___'_as _r____
 Plain.....7: Drrhr __argues _h_t'u_atonael_ __ub_ ____tt_ a_c that ____he___h_e c_n____v___ _gr__ty__'but_chicbdys _hat oe hat'__rebz lul_ toc__ttri
 Plain.....8: Drrhr __suggest_ _ tb_rbt bfl_o__ f_o____id_ h_'will a____in___i_ ag_e____o___a_gb__is__hte _f'shb sth_rs uianimhr__y xlta  _uikr__
