@@ -165,7 +165,7 @@ class TestCrackStream(unittest.TestCase):
 
     def test_keyLenHighBits(self):
         enc_msg = encrypt_otp_int(msg='aababcaa', key=[0x00, 0xff, 0xff, 0x00, 0xff, 0xff, 0x00, 0xff])
-        self.assertItemsEqual(mtpc.key_len_high_bits(enc_msg, key_length_range=(1, 4)), [3])
+        self.assertItemsEqual(mtpc.key_len_high_bits(enc_msg, key_len_range=range(1, 4)), [3])
 
 
 class TestCrackBlock(unittest.TestCase):
