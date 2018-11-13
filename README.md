@@ -5,6 +5,8 @@ Simple application to crack "one-time pad" (now many-time pad) encrypted message
 There are two basic functions for cracking messages:
 * `crack_block()` - for cracking multiple block/separate messages, where length each of blocks is known, and secret key was reused for each of the blocks.
 * `crack_stream()` - for cracking one block/message, where secret key is significantly shorter than encrypted message, and was reused multiple times.
+
+# Examples
 ```
 [+] Testing block cracking
 Number of combinations: 382321831366549831680
