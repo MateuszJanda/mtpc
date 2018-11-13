@@ -253,13 +253,9 @@ class FreqOrderMatcher:
         sorrted_xors_freq = sorted(xors_freqs.items(), key=operator.itemgetter(1), reverse=True)
         sorted_lang_freqs = sorted(self._freq_tab.items(), key=operator.itemgetter(1), reverse=True)
 
-        print sorrted_xors_freq
-
         self._orderd_freqs = {}
         for z in zip(sorrted_xors_freq, sorted_lang_freqs):
             self._orderd_freqs[z[0][0]] = z[1][0]
-
-        print self._orderd_freqs
 
     def match(self, xored_bytes):
         unique_letters = set([ord(l) for l in self._orderd_freqs[xored_bytes]])
