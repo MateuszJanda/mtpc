@@ -1,7 +1,9 @@
 # MTPC - many-time pad cracker
 
-Simple application to crake encrypted messages where key was reused for "one-time pad" (now many-time pad) cipher. 
+Simple application to crack "one-time pad" (now many-time pad) encrypted messages where key was reused multiple times.
 
+There are two basic functions for cracking messages. 
+* `crack_block()` for craking multiple block/separate messages, where length each of blocks is known, and one key was reused for each of the blocks.
 ```
 [+] Testing block cracking
 Number of combinations: 382321831366549831680
