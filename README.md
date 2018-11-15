@@ -3,10 +3,19 @@
 Simple application to crack "one-time pad" (now many-time pad) encrypted messages where secret key was reused multiple times.
 
 There are two basic functions for cracking messages:
-* `crack_block()` - for cracking multiple block/separate messages, where length each of blocks is known, and secret key was reused for each of the blocks.
-* `crack_stream()` - for cracking one block/message, where secret key is significantly shorter than encrypted message, and was reused multiple times.
+* `crack_blocks(enc_msgs, method, lang_stats, char_base)` - for cracking multiple block/separate messages, where length each of blocks is known, and secret key was reused for each of the blocks. Available parameters:
+** `enc_msg` - list of encoded messages. Each character should be presented as int
+** `method` - cracking method (**default:** `'space'`):
+*** `'spaces'` - determine key by most common character (which is space in literature). Most common encrypted byte _e_ at give colon should the most common character _s_. We can retrieve key at this position by calculating _k = e ⊕ s_
+*** `'best-freq'` - calculate frequency of
+*** `'first-order-freq'` -
+** `lang_stats` - letters frequency distribution of specific language. **By default:** `mtpc.ENGLISH_LETTERS`
+** `char_base`: characters expected in output message. **By default:** all Latin letters, space and apostrophe: `string.letters+" '"`
 
-# Examples
+* `crack_stream(enc_msg, method, key_len_method, lang_stats, char_base, key_len_range, checks)` - for cracking one block/message, where secret key is significantly shorter than encrypted message, and was reused multiple times.
+**
+
+## Examples
 ```
 [+] Testing block cracking
 Number of combinations: 382321831366549831680

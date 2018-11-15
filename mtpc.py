@@ -414,10 +414,10 @@ def hamming_distance(enc_msg, key_length):
 def crack_blocks(enc_msgs, method='spaces', lang_stats=ENGLISH_LETTERS, char_base=string.letters+" '"):
     """
     Crack blocks of bytes stream, where key was reused for each block.
-    :param enc_msgs: encoded messages each character should be encoded as int
+    :param enc_msgs: list of encoded messages. Each character should be presented as int
     :param method: cracking method: 'best-freq', 'first-order-freq', 'spaces'
-    :param lang_stats: character frequencies distribution in specific language: default ENGLISH_LETTERS
-    :param char_base: expected characters in output message
+    :param lang_stats: letters frequency distribution of specific language. By default ENGLISH_LETTERS
+    :param char_base: characters expected in output message
     """
     if method == 'best-freq':
         msg_bytes_matcher = FreqMatcher(lang_stats, delta=0.3)
@@ -436,10 +436,10 @@ def crack_blocks(enc_msgs, method='spaces', lang_stats=ENGLISH_LETTERS, char_bas
     v.show(enc_msgs, keys_candidates, char_base)
 
 
-def find_key_by_most_common_char(enc_msg, most_common_ch=' '):
+def find_key_by_most_common_char(enc_msgs, most_common_ch=' '):
     """ Find key by most common character (be default space) """
     counters = []
-    for e in enc_msg:
+    for e in enc_msgs:
         for ix in range(len(e)):
             if ix == len(counters):
                 counters.append(Counter())
