@@ -105,7 +105,7 @@ End check
 
 ## Example - block cracking example
 
-```
+```python
 import itertools as it
 from mtpc import crack_blocks
 
