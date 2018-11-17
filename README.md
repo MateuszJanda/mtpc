@@ -1,6 +1,6 @@
 # MTPC - many-time pad cracker
 
-Simple application to crack "one-time pad" (now many-time pad) encrypted messages where secret key was reused multiple times.
+Simple application to crack "one-time pad" (now many-time pad) encrypted messages where secret key was reused multiple times. Work with Python 2.7.
 
 There are two basic functions for cracking messages:
 * `crack_blocks(enc_msgs, method, lang_stats, char_base)` - for cracking multiple block/separate messages, where length each of blocks is known, and secret key was reused for each of the blocks. Available parameters:
@@ -25,7 +25,119 @@ There are two basic functions for cracking messages:
 ** `key_len_range` - to reduce the number of combinations `key_len_range` can be provided. **By default:** `range(2, 100)`
 ** `checks` - number of best result to show. **By default:** 5
 
-## Examples
+## Example - stream cracking
+
+Stream cracking example. Because key consists only letters Hamming distance could give much better results.
+```
+import itertools as it
+from mtpc import crack_stream
+
+# https://en.wikipedia.org/wiki/12_Angry_Men_(1957_film)
+text = 'In a New York City courthouse a jury commences deliberating the ' \
+    'case of an 18-year-old boy from a slum, on trial for allegedly ' \
+    'stabbing his father to death. If there is any reasonable doubt ' \
+    'they are to return a verdict of not guilty. If found guilty, ' \
+    'the boy will receive a death sentence.' \
+    'In a preliminary vote, all jurors vote "guilty" except Juror 8, who ' \
+    'argues that the boy deserves some deliberation. This irritates some ' \
+    'of the other jurors, who are impatient for a quick deliberation, ' \
+    'especially Juror 7 who has tickets to the evening\'s Yankees game, and '\
+    '10 who demonstrates blatant prejudice against people from slums. '
+
+password = 'There is no spoon'
+
+enc_msg = [ord(t) ^ ord(p) for t, p in zip(text, it.cycle(password))]
+crack_stream(enc_msg, key_len_method='hamming', key_len_range=range(16, 18))
+
+```
+
+One of the outputs. You can see that Hamming distance for key length 17 is much better than that for length 16. Key is almost completely revealed. Bytes/chars that aren't present in `'char_base'` are replaced with `'?'` symbol.
+```
+[+] Testing stream cracking
+Hamming distance from worst to best:
+Length [16] : 3.8125
+Length [17] : 3.23529411765
+
+Check for key length: 17
+Number of combinations: 1
+Keys counts: 11111111111111111
+Index......: 01234567890123456
+Plain.....0: In a Newt_*rk C,t
+Plain.....1: y courth;06e a /u
+Plain.....2: ry comme:& s de)i
+Plain.....3: beratingt1-e ca6e
+Plain.....4:  of an 1lh<ear-*l
+Plain.....5: d boy fr;(ea sl0m
+Plain.....6: , on tri5)efor $l
+Plain.....7: legedly '1$bbin"
+Plain.....8: his fath17eto d a
+Plain.....9: th. If t< 7e isea
+Plain....10: ny reaso:$'le d*u
+Plain....11: bt they 57  to 7e
+Plain....12: turn a v17!ict *f
+Plain....13:  not gui81<. Ifef
+Plain....14: ound gui81<, th
+Plain....15: boy willt7 ceiv
+Plain....16: a death ' +tenc .
+Plain....17: In a pre8,(inar<
+Plain....18: vote, al8e/uror6
+Plain....19: vote "gu=)1y" e=c
+Plain....20: ept Juro&e}, wh*
+Plain....21: argues t<$1 theeb
+Plain....22: oy deser" 6 som
+Plain....23: delibera ,*n. T-i
+Plain....24: s irrita  6 som
+Plain....25: of the o - r ju7o
+Plain....26: rs, who 57  imp$t
+Plain....27: ient fort$equic.
+Plain....28: delibera ,*n, e6p
+Plain....29: ecially _07or 7ew
+Plain....30: ho has t=&.ets 1o
+Plain....31:  the eve:,+g's _a
+Plain....32: nkees ga9 i ande1
+Plain....33: 0 who de9*+stra1e
+Plain....34: s blatan e5reju!i
+Plain....35: ce again'1epeop)e
+Plain....36:  from sl!(6.
+Key (str)..: There ist?? spo?n
+Key (hex)..: 5468657265206973742b2a2073706f2a6e
+End check
+```
+
+## Example - block cracking example
+
+```
+import itertools as it
+from mtpc import crack_blocks
+
+# https://en.wikipedia.org/wiki/12_Angry_Men_(1957_film)
+blocks = [
+    'In a New York City courthouse a jury commences deliberating the case of an 18-year-old boy from a slum, on trial for allegedly stabbing his father to death.',
+    'If there is any reasonable doubt they are to return a verdict of not guilty. If found guilty, the boy will receive a death sentence',
+    'In a preliminary vote, all jurors vote "guilty" except Juror 8, who argues that the boy deserves some deliberation.',
+    'This irritates some of the other jurors, who are impatient for a quick deliberation, ',
+    'especially Juror 7 who has tickets to the evening\'s Yankees game, and 10 who demonstrates blatant prejudice against people from slums',
+    'Juror 8 questions the accuracy and reliability of the only two witnesses, and the prosecution\'s claim that the murder weapon, ',
+    'a common switchblade (of which he possesses an identical copy), was "rare"',
+    'Juror 8 argues that reasonable doubt exists, and that he therefore cannot vote "guilty", but concedes that he has merely hung the jury.',
+    'Juror 8 suggests a secret ballot, from which he will abstain, and agrees to change his vote if the others unanimously vote "guilty"',
+    'The ballot is held and a new "not guilty" vote appears.',
+    'An angry Juror 3 accuses Juror 5, who grew up in a slum, of changing his vote out of sympathy towards slum children.',
+    'However, Juror 9 reveals it was he that changed his vote, agreeing there should be some discussion',
+    'Juror 8 argues that the noise of a passing train would have obscured the verbal threat that one witness claimed to ',
+    'have heard the boy tell his father "I\'m going to kill you"',
+    'Juror 5 then changes his vote. Juror 11 also changes his vote, ',
+    'believing the boy would not likely have tried to retrieve the murder weapon from the scene if it had been cleaned of fingerprints.'
+]
+
+password = 'Never send a human to do a machine\'s job'
+
+enc_msgs = [[ord(t) ^ ord(p) for t, p in zip(text, it.cycle(password))] for text in blocks]
+crack_blocks(enc_msgs=encrypted_block(), method='first-order-freq')
+
+```
+
+Output. Unknown bytes in messages and keys are replaced with `'_'` symbol. Bytes/chars that aren't present in `'char_base'` are replaced with `'?'` symbol.
 ```
 [+] Testing block cracking
 Number of combinations: 382321831366549831680
