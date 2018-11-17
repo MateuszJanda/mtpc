@@ -351,7 +351,7 @@ def crack_stream(enc_msg, method='spaces', key_len_method='high-bits', lang_stat
                  char_base=string.letters+" '", key_len_range=range(2, 100), checks=5):
     """
     Crack byte stream, where key was reused more than one (key length is shorter than stream length)
-    :param enc_msg: each character should be encoded as int
+    :param enc_msg: encoded message. Each character should be encoded as int
     :param method: cracking method: 'best-freq', 'first-order-freq', 'spaces'
     :param key_len_method: method to determine key length: 'hamming', 'high-bits'
     :param lang_stats: character frequencies distribution in specific language: default ENGLISH_LETTERS
