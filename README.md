@@ -132,7 +132,7 @@ blocks = [
 password = 'Never send a human to do a machine\'s job'
 
 enc_msgs = [[ord(t) ^ ord(p) for t, p in zip(text, it.cycle(password))] for text in blocks]
-crack_blocks(enc_msgs=encrypted_block(), method='first-order-freq')
+crack_blocks(enc_msgs, method='first-order-freq')
 ```
 
 Output. Unknown bytes in messages and keys are replaced with `'_'` symbol. Bytes/chars that aren't present in `'char_base'` are replaced with `'?'` symbol.
