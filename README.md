@@ -28,7 +28,7 @@ There are two basic functions for cracking messages:
 ## Example - stream cracking
 
 Stream cracking example. Because key consists only letters Hamming distance could give much better results.
-```
+```python
 import itertools as it
 from mtpc import crack_stream
 
@@ -48,7 +48,6 @@ password = 'There is no spoon'
 
 enc_msg = [ord(t) ^ ord(p) for t, p in zip(text, it.cycle(password))]
 crack_stream(enc_msg, key_len_method='hamming', key_len_range=range(16, 18))
-
 ```
 
 One of the outputs. You can see that Hamming distance for key length 17 is much better than that for length 16. Key is almost completely revealed. Bytes/chars that aren't present in `'char_base'` are replaced with `'?'` symbol.
@@ -134,7 +133,6 @@ password = 'Never send a human to do a machine\'s job'
 
 enc_msgs = [[ord(t) ^ ord(p) for t, p in zip(text, it.cycle(password))] for text in blocks]
 crack_blocks(enc_msgs=encrypted_block(), method='first-order-freq')
-
 ```
 
 Output. Unknown bytes in messages and keys are replaced with `'_'` symbol. Bytes/chars that aren't present in `'char_base'` are replaced with `'?'` symbol.
