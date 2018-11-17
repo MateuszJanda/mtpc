@@ -4,26 +4,26 @@ Simple application to crack "one-time pad" (now many-time pad) encrypted message
 
 There are two basic functions for cracking messages:
 * `crack_blocks(enc_msgs, method, lang_stats, char_base)` - for cracking multiple block/separate messages, where length each of blocks is known, and secret key was reused for each of the blocks. Available parameters:
-** `enc_msg` - list of encoded messages. Each character should be presented as int
-** `method` - cracking method (**default:** `'space'`):
-*** `'spaces'` - determine key by most common character (which is space in literature). Most common encrypted byte _e_ at give colon should the most common character _s_. We can retrieve key at this position by calculating _k = e ⊕ s_
-*** `'best-freq'` - determine key by selecting xor-ed byte (_e1 ⊕ e2 = (k ⊕ m1)⊕(k ⊕ m2)=m1 ⊕ m2_) value with corresponding values in letters frequency table, with specific delta (**default:** 0.3)
-*** `'first-order-freq'` - determine key by selecting xor-ed byte (_e1 ⊕ e2 = (k ⊕ m1)⊕(k ⊕ m2)=m1 ⊕ m2_) position in sorted table corresponding position in sorted letters frequency table.
-** `lang_stats` - letters frequency distribution of specific language. **By default:** `mtpc.ENGLISH_LETTERS`
-** `char_base`: characters expected in output message. **By default:** all Latin letters, space and apostrophe: `string.letters+" '"`
+ * `enc_msg` - list of encoded messages. Each character should be presented as int
+ * `method` - cracking method (**default:** `'space'`):
+  * `'spaces'` - determine key by most common character (which is space in literature). Most common encrypted byte _e_ at give colon should the most common character _s_. We can retrieve key at this position by calculating _k = e ⊕ s_
+  * `'best-freq'` - determine key by selecting xor-ed byte (_e1 ⊕ e2 = (k ⊕ m1)⊕(k ⊕ m2)=m1 ⊕ m2_) value with corresponding values in letters frequency table, with specific delta (**default:** 0.3)
+  * `'first-order-freq'` - determine key by selecting xor-ed byte (_e1 ⊕ e2 = (k ⊕ m1)⊕(k ⊕ m2)=m1 ⊕ m2_) position in sorted table corresponding position in sorted letters frequency table.
+ * `lang_stats` - letters frequency distribution of specific language. **By default:** `mtpc.ENGLISH_LETTERS`
+ * `char_base`: characters expected in output message. **By default:** all Latin letters, space and apostrophe: `string.letters+" '"`
 
 * `crack_stream(enc_msg, method, key_len_method, lang_stats, char_base, key_len_range, checks)` - for cracking one block/message, where secret key is significantly shorter than encrypted message, and was reused multiple times.
-** `enc_msg` - encoded message. Each character should be encoded as int
-** `method` - cracking method (**default:** `'space'`):
-*** `'spaces'` - determine key by most common character (which is space in literature). Most common encrypted byte _e_ at give colon should the most common character _s_. We can retrieve key at this position by calculating _k = e ⊕ s_
-*** `'best-freq'` - determine key by selecting xor-ed byte (_e1 ⊕ e2 = (k ⊕ m1)⊕(k ⊕ m2)=m1 ⊕ m2_) value with corresponding values in letters frequency table, with specific delta (**default:** 0.3)
-*** `'first-order-freq'` - determine key by selecting xor-ed byte (_e1 ⊕ e2 = (k ⊕ m1)⊕(k ⊕ m2)=m1 ⊕ m2_) position in sorted table corresponding position in sorted letters frequency table.
-** `key_len_method` - method to determine key length (**default:** `'high-bits'`)
-*** `'hamming'` - Hamming distance to determine key length
-*** `'high-bits'` - works only when key contain high bits (key is not build from printable characters)
-** `lang_stats` - letters frequency distribution of specific language. **By default:** `mtpc.ENGLISH_LETTERS`
-** `key_len_range` - to reduce the number of combinations `key_len_range` can be provided. **By default:** `range(2, 100)`
-** `checks` - number of best result to show. **By default:** 5
+ * `enc_msg` - encoded message. Each character should be encoded as int
+  * `method` - cracking method (**default:** `'space'`):
+  * `'spaces'` - determine key by most common character (which is space in literature). Most common encrypted byte _e_ at give colon should the most common character _s_. We can retrieve key at this position by calculating _k = e ⊕ s_
+  * `'best-freq'` - determine key by selecting xor-ed byte (_e1 ⊕ e2 = (k ⊕ m1)⊕(k ⊕ m2)=m1 ⊕ m2_) value with corresponding values in letters frequency table, with specific delta (**default:** 0.3)
+  * `'first-order-freq'` - determine key by selecting xor-ed byte (_e1 ⊕ e2 = (k ⊕ m1)⊕(k ⊕ m2)=m1 ⊕ m2_) position in sorted table corresponding position in sorted letters frequency table.
+ * `key_len_method` - method to determine key length (**default:** `'high-bits'`)
+  * `'hamming'` - Hamming distance to determine key length
+  * `'high-bits'` - works only when key contain high bits (key is not build from printable characters)
+ * `lang_stats` - letters frequency distribution of specific language. **By default:** `mtpc.ENGLISH_LETTERS`
+ * `key_len_range` - to reduce the number of combinations `key_len_range` can be provided. **By default:** `range(2, 100)`
+ * `checks` - number of best result to show. **By default:** 5
 
 ## Example - stream cracking
 
