@@ -7,8 +7,8 @@ There are two basic functions for cracking messages:
 ** `enc_msg` - list of encoded messages. Each character should be presented as int
 ** `method` - cracking method (**default:** `'space'`):
 *** `'spaces'` - determine key by most common character (which is space in literature). Most common encrypted byte _e_ at give colon should the most common character _s_. We can retrieve key at this position by calculating _k = e ⊕ s_
-*** `'best-freq'` - calculate frequency of
-*** `'first-order-freq'` -
+*** `'best-freq'` - determine key by selecting xor-ed byte (_e1 ⊕ e2 = (k ⊕ m1)⊕(k ⊕ m2)=m1 ⊕ m2_) value with corresponding values in letters frequency table, with specific delta (**default:** 0.3)
+*** `'first-order-freq'` - determine key by selecting xor-ed byte (_e1 ⊕ e2 = (k ⊕ m1)⊕(k ⊕ m2)=m1 ⊕ m2_) position in sorted table corresponding position in sorted letters frequency table.
 ** `lang_stats` - letters frequency distribution of specific language. **By default:** `mtpc.ENGLISH_LETTERS`
 ** `char_base`: characters expected in output message. **By default:** all Latin letters, space and apostrophe: `string.letters+" '"`
 

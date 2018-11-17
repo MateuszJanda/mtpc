@@ -217,6 +217,11 @@ class EncDataAnalyzer:
 
 class FreqMatcher:
     """ Match xor-ed value (of two encrypted bytes) with pair of letters.
+    xor-ed value should be calculated as: xor_value=e1^e2=(k^m1)^(k^m2)=m1^m2
+    - where e1 and e2 are two bytes from two encrypted messages at the same
+      position
+    - k is byte of secret key at given position
+    - m1, m2 are true not encrypted bytes from two messages at the same position
     Matching is performed by frequency search with some delta. """
     def __init__(self, lang_stats, delta):
         self._freq_tab = LettersDistributor.distribution(lang_stats)
@@ -227,8 +232,11 @@ class FreqMatcher:
     def set_xors_freqs(self, xors_freqs):
         self._xors_freqs = xors_freqs
 
-    def match(self, xored_bytes):
-        freq = self._xors_freqs[xored_bytes]
+    def match(self, xored_value):
+        """
+        :param xored_value: xor of bytes (at the same position) from two encrypted messages
+        """
+        freq = self._xors_freqs[xored_value]
         prob_letters = [letters for letters, f in self._freq_tab.items()
                         if (f - self._delta) < freq < (f + self._delta)]
         unique_letters = set([ord(l) for l in itertools.chain(*prob_letters)])
@@ -237,10 +245,15 @@ class FreqMatcher:
 
 class FreqOrderMatcher:
     """
-    Match xor-ed value (of two encrypted bytes) with pair of letters. Both
-    xor-ed value table and letters, are first sorted by their frequencies, and
-    then linked to each other - most common xor-ed value with most common pairs,
-    and so on.
+    Match xor-ed value (of two encrypted bytes) with pair of letters.
+    xor-ed value should be calculated as: xor_value=e1^e2=(k^m1)^(k^m2)=m1^m2
+    - where e1 and e2 are two bytes from two encrypted messages at the same
+      position
+    - k is byte of secret key at given position
+    - m1, m2 are true not encrypted bytes from two messages at the same position
+    Both xor-ed values table and letters table, are first sorted by their
+    frequencies, and then linked to each other - most common xor-ed value with
+    most common pairs, and so on.
     """
     def __init__(self, lang_stats):
         self._freq_tab = LettersDistributor.distribution(lang_stats)
@@ -257,8 +270,11 @@ class FreqOrderMatcher:
         for z in zip(sorrted_xors_freq, sorted_lang_freqs):
             self._orderd_freqs[z[0][0]] = z[1][0]
 
-    def match(self, xored_bytes):
-        unique_letters = set([ord(l) for l in self._orderd_freqs[xored_bytes]])
+    def match(self, xored_value):
+        """
+        :param xored_value: xor of bytes (at the same position) from two encrypted messages
+        """
+        unique_letters = set([ord(l) for l in self._orderd_freqs[xored_value]])
         return unique_letters
 
 
