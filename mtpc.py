@@ -1,10 +1,12 @@
-#! /usr/bin/env python2
-# -*- coding: utf-8 -*-
-# Author: Mateusz Janda (mateusz.janda [at] gmail [dot] com)
-# Ad maiorem Dei gloriam
+#! /usr/bin/env python3
 
 """
-Knowledge base:
+Author: Mateusz Janda <mateusz janda at gmail com>
+Site: github.com/MateuszJanda
+"""
+
+"""
+References:
 http://crypto.stackexchange.com/questions/59/taking-advantage-of-one-time-pad-key-reuse
 http://www.data-compression.com/english.html
 
@@ -17,7 +19,6 @@ https://en.wikipedia.org/wiki/Most_common_words_in_English
 https://en.wiktionary.org/wiki/Wiktionary:Frequency_lists
 """
 
-from __future__ import division
 import itertools
 from collections import Counter
 from collections import namedtuple
@@ -198,8 +199,8 @@ class EncDataAnalyzer:
     def _count_freq(self, xors_counts):
         """ Calculate frequency for each bytes pairs in encrypted message. """
         xors_freqs = {}
-        total = sum([count for _, count in xors_counts.iteritems()])
-        for mm, count in xors_counts.iteritems():
+        total = sum([count for _, count in xors_counts.items()])
+        for mm, count in xors_counts.items():
             xors_freqs[mm] = count / total
 
         return xors_freqs
@@ -306,7 +307,7 @@ class ResultView:
         for num, enc_msg in enumerate(enc_msgs):
             output = ''
             for c, k in zip(enc_msg, key):
-                if k is not None and chr(c ^ k) in string.digits + string.letters + string.punctuation + ' ':
+                if k is not None and chr(c ^ k) in string.digits + string.ascii_letters + string.punctuation + ' ':
                     output += chr(c ^ k)
                 else:
                     output += '_'
@@ -317,7 +318,7 @@ class ResultView:
 
     def _print_index(self, key):
         output = ''
-        for i in xrange(len(key)):
+        for i in range(len(key)):
             output += str(i % 10)
         print('Index......: ' + output)
 
@@ -348,7 +349,7 @@ class ResultView:
 
 
 def crack_stream(enc_msg, method='spaces', key_len_method='high-bits', lang_stats=ENGLISH_LETTERS,
-                 char_base=string.letters+" '", key_len_range=range(2, 100), checks=5):
+                 char_base=string.ascii_letters+" '", key_len_range=range(2, 100), checks=5):
     """
     Crack byte stream, where key was reused more than one (key length is shorter than stream length)
     :param enc_msg: encoded message. Each character should be encoded as int
@@ -427,7 +428,7 @@ def hamming_distance(enc_msg, key_length):
     return bits / key_length
 
 
-def crack_blocks(enc_msgs, method='spaces', lang_stats=ENGLISH_LETTERS, char_base=string.letters+" '"):
+def crack_blocks(enc_msgs, method='spaces', lang_stats=ENGLISH_LETTERS, char_base=string.ascii_letters+" '"):
     """
     Crack blocks of bytes stream, where key was reused for each block.
     :param enc_msgs: list of encoded messages. Each character should be presented as int

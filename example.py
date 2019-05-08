@@ -1,7 +1,9 @@
-#! /usr/bin/env python2
-# -*- coding: utf-8 -*-
-# Author: Mateusz Janda (mateusz.janda [at] gmail [dot] com)
-# Ad maiorem Dei gloriam
+#! /usr/bin/env python3
+
+"""
+Author: Mateusz Janda <mateusz janda at gmail com>
+Site: github.com/MateuszJanda
+"""
 
 import itertools as it
 from mtpc import crack_stream, crack_blocks

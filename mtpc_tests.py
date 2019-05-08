@@ -1,12 +1,14 @@
-#! /usr/bin/env python2
-# -*- coding: utf-8 -*-
-# Author: Mateusz Janda (mateusz.janda [at] gmail [dot] com)
-# Ad maiorem Dei gloriam
+#! /usr/bin/env python3
+
+"""
+Author: Mateusz Janda <mateusz janda at gmail com>
+Site: github.com/MateuszJanda
+"""
 
 import unittest
-import mock
-from mock import mock_open
-from mock import call
+from unittest import mock
+from unittest.mock import mock_open
+from unittest.mock import call
 
 import mtpc
 
@@ -42,7 +44,7 @@ class TestCracker(unittest.TestCase):
         ]
 
         keys_candidates = c.run(enc_msgs)
-        self.assertItemsEqual(keys_candidates, [[None]])
+        self.assertCountEqual(keys_candidates, [[None]])
 
     def test_crack_whenTextMathLanguagePattern_returnProposal(self):
         letters_dist = {
@@ -59,7 +61,7 @@ class TestCracker(unittest.TestCase):
         ]
 
         keys_candidates = c.run(enc_msgs)
-        self.assertItemsEqual(keys_candidates, [[ord('a'), ord('b')]])
+        self.assertCountEqual(keys_candidates, [[ord('a'), ord('b')]])
 
     def test_crack_whenFreqInDifferentOrder_returnProposal(self):
         letters_dist = {
@@ -76,7 +78,7 @@ class TestCracker(unittest.TestCase):
         ]
 
         keys_candidates = c.run(enc_msgs)
-        self.assertItemsEqual(keys_candidates, [[ord('a'), ord('b')]])
+        self.assertCountEqual(keys_candidates, [[ord('a'), ord('b')]])
 
     def test_crack_whenTextIsLonger(self):
         letters_dist = {
@@ -93,7 +95,7 @@ class TestCracker(unittest.TestCase):
         ]
 
         keys_candidates = c.run(enc_msgs)
-        self.assertItemsEqual(keys_candidates, [[ord('a'), ord('b')],
+        self.assertCountEqual(keys_candidates, [[ord('a'), ord('b')],
                                                 [None],
                                                 [ord('a'), ord('b')],
                                                 [None]])
@@ -113,7 +115,7 @@ class TestCracker(unittest.TestCase):
         ]
 
         keys_candidates = c.run(enc_msgs)
-        self.assertItemsEqual(keys_candidates, [[ord('a'), ord('b')],
+        self.assertCountEqual(keys_candidates, [[ord('a'), ord('b')],
                                                 [None],
                                                 [ord('a'), ord('c')],
                                                 [None]])
@@ -134,7 +136,7 @@ class TestCracker(unittest.TestCase):
         ]
 
         keys_candidates = c.run(enc_msgs)
-        self.assertItemsEqual(keys_candidates, [[ord('a'), ord('b')],
+        self.assertCountEqual(keys_candidates, [[ord('a'), ord('b')],
                                                 [96, ord('b')],
                                                 [ord('a'), ord('b')],
                                                 [None],
@@ -156,7 +158,7 @@ class TestCrackStream(unittest.TestCase):
                   'ae8a7b3282fa9f7a7188af99353f86ae827a3f86b6cb663484af997c259efa8a7b35c7af8761388abb9f707191' \
                   'b388613e95a3c5'
 
-        e = [ord(ch) for ch in enc_msg.decode('hex')]
+        e = [b for b in bytes.fromhex(enc_msg)]
 
         self.assertAlmostEqual(mtpc.hamming_distance(e, 5), 3)
         self.assertAlmostEqual(mtpc.hamming_distance(e, 2), 3.5)
@@ -165,7 +167,7 @@ class TestCrackStream(unittest.TestCase):
 
     def test_keyLenHighBits(self):
         enc_msg = encrypt_otp_int(msg='aababcaa', key=[0x00, 0xff, 0xff, 0x00, 0xff, 0xff, 0x00, 0xff])
-        self.assertItemsEqual(mtpc.key_len_high_bits(enc_msg, key_len_range=range(1, 4)), [3])
+        self.assertCountEqual(mtpc.key_len_high_bits(enc_msg, key_len_range=range(1, 4)), [3])
 
 
 class TestCrackBlock(unittest.TestCase):
@@ -177,7 +179,7 @@ class TestCrackBlock(unittest.TestCase):
         ]
 
         keys_candidates = mtpc.find_key_by_most_common_char(enc_msgs)
-        self.assertItemsEqual(keys_candidates, [[ord('v')],
+        self.assertCountEqual(keys_candidates, [[ord('v')],
                                                 [ord('x')],
                                                 [ord('a') ^ ord('y') ^ ord(' ')],
                                                 [ord('b') ^ ord('z') ^ ord(' ')]])
